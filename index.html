@@ -287,7 +287,6 @@
         <button id="btnLogin" class="btn btn-cam" type="submit">Vào lớp →</button>
       </form>
       <p id="loginErr" class="err"></p>
-      <p class="slogan">Chăm chỉ lên nhé các em ơi 🔥</p>
     </div>
   </section>
 
@@ -518,7 +517,8 @@ function renderList() {
     if (d.loai === 'Bài tập') meta.append(el('span', null, '✎ ' + d.soCau + ' câu'));
     if (S.daNop[d.maDe]) meta.append(el('span', 'done-badge', '✓ ' + S.daNop[d.maDe]));
     b.append(top, el('div', 'ten', d.ten));
-    if (d.loai !== 'Bài tập') b.append(el('div', 'trich', d.noiDung.replace(/\s+/g, ' ')));
+    if (d.chuDe) b.append(el('div', 'trich', d.chuDe));
+    else if (d.loai !== 'Bài tập') b.append(el('div', 'trich', d.noiDung.replace(/\s+/g, ' ')));
     b.append(meta);
     b.onclick = () => openDe(d);
     box.appendChild(b);
