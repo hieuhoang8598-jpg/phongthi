@@ -7,17 +7,17 @@
 <link rel="icon" href="favicon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Darker+Grotesque:wght@600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600&family=Darker+Grotesque:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --cam: #FF7A1A; --cam-dam: #8A3A00; --cam-nhat: #FFE7D4; --den: #141414; --kem: #FFF6EE; --trang: #FFFFFF;
     --chu: #141414; --mo: #6E625A; --vien: #EFE2D6; --xanh: #1F8A4C; --do: #D93A1A;
     --head: "Darker Grotesque", system-ui, sans-serif;
-    --body: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+    --body: "Darker Grotesque", system-ui, -apple-system, "Segoe UI", sans-serif;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; }
-  body { background: var(--kem); color: var(--chu); font: 16px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
+  body { background: var(--kem); color: var(--chu); font: 500 19px/1.6 var(--body); -webkit-font-smoothing: antialiased; }
   button { font: inherit; cursor: pointer; border: 0; }
   button:disabled { opacity: .5; cursor: not-allowed; }
   [hidden] { display: none !important; }
@@ -29,9 +29,9 @@
   .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; color: inherit; }
   .brand img { width: 38px; height: 38px; display: block; }
   .brand-name { font: 800 24px/1 var(--head); letter-spacing: .1px; white-space: nowrap; }
-  .brand-sub { font: 700 11px/1 var(--body); letter-spacing: 3px; color: var(--cam); text-transform: uppercase; margin-top: 4px; }
+  .brand-sub { font: 700 13px/1 var(--body); letter-spacing: 3px; color: var(--cam); text-transform: uppercase; margin-top: 4px; }
   .who { margin-left: auto; border: 1.5px solid var(--cam); color: var(--trang); border-radius: 99px; padding: 5px 14px;
-    font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55vw; min-width: 0; }
+    font-size: 17px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 55vw; min-width: 0; }
 
   main { max-width: 1180px; margin: 0 auto; padding: 24px 16px 64px; }
   .screen { display: none; }
@@ -41,8 +41,8 @@
   /* ---------- Khối & nút ---------- */
   .card { background: var(--trang); border-radius: 24px; padding: 24px; box-shadow: 0 1px 0 var(--vien), 0 10px 30px -18px rgba(138,58,0,.35); }
   h1, h2 { font-family: var(--head); font-weight: 900; line-height: 1; margin: 0; letter-spacing: -.2px; }
-  .eyebrow { font: 700 12px/1 var(--body); letter-spacing: 3px; text-transform: uppercase; color: var(--cam-dam); }
-  .muted { color: var(--mo); font-size: 15px; }
+  .eyebrow { font: 700 14px/1 var(--body); letter-spacing: 3px; text-transform: uppercase; color: var(--cam-dam); }
+  .muted { color: var(--mo); font-size: 18px; }
   .btn { border-radius: 99px; padding: 12px 24px; font: 800 20px/1 var(--head); letter-spacing: .3px; transition: transform .1s, background .15s; }
   .btn:active { transform: scale(.97); }
   .btn-cam { background: var(--cam); color: var(--trang); }
@@ -50,24 +50,24 @@
   .btn-den { background: var(--den); color: var(--trang); }
   .btn-den:hover { background: #2a2a2a; }
   .btn-vien { background: transparent; color: var(--den); border: 2px solid var(--den); padding: 10px 20px; }
-  .btn-nho { font-size: 17px; padding: 8px 16px; }
+  .btn-nho { font-size: 20px; padding: 8px 16px; }
 
   /* ---------- Đăng nhập ---------- */
   .login { max-width: 440px; margin: 24px auto; text-align: center; padding: 36px 28px 28px; }
   .login .logo { width: 220px; max-width: 70%; display: block; margin: 0 auto 20px; }
-  .login h1 { font-size: 36px; margin-bottom: 6px; }
+  .login h1 { font-size: 43px; margin-bottom: 6px; }
   .login form { text-align: left; margin-top: 20px; }
-  label { display: block; font: 700 13px/1 var(--body); letter-spacing: 1.5px; text-transform: uppercase; color: var(--cam-dam); margin-top: 16px; }
-  input.field { display: block; width: 100%; margin-top: 8px; padding: 14px 18px; font: 600 18px var(--body);
+  label { display: block; font: 700 16px/1 var(--body); letter-spacing: 1.5px; text-transform: uppercase; color: var(--cam-dam); margin-top: 16px; }
+  input.field { display: block; width: 100%; margin-top: 8px; padding: 14px 18px; font: 600 22px var(--body);
     border: 2px solid var(--vien); border-radius: 16px; background: var(--kem); color: var(--chu); transition: border-color .15s; }
   input.field:focus { outline: none; border-color: var(--cam); background: var(--trang); }
-  .login .btn { width: 100%; margin-top: 24px; padding: 16px; font-size: 22px; }
-  .err { color: var(--do); font-size: 14px; min-height: 22px; margin: 12px 0 0; text-align: center; }
+  .login .btn { width: 100%; margin-top: 24px; padding: 16px; font-size: 26px; }
+  .err { color: var(--do); font-size: 17px; min-height: 22px; margin: 12px 0 0; text-align: center; }
   .slogan { margin-top: 18px; font: 700 18px var(--head); color: var(--mo); }
 
   /* ---------- Danh sách đề ---------- */
   .hero { background: var(--cam); color: var(--trang); border-radius: 28px; padding: 26px 28px; position: relative; overflow: hidden; margin-bottom: 22px; }
-  .hero h1 { font-size: 44px; }
+  .hero h1 { font-size: 53px; }
   .hero p { margin: 6px 0 0; font: 700 22px/1.2 var(--head); opacity: .95; }
   .hero::after { content: ""; position: absolute; right: -30px; bottom: -40px; width: 180px; height: 180px;
     background: url(icon.png) center/contain no-repeat; opacity: .16; transform: rotate(-12deg); filter: brightness(0) invert(1); }
@@ -76,20 +76,20 @@
   .tab { background: none; border-radius: 99px; padding: 9px 18px; font: 800 18px/1 var(--head); color: var(--mo); }
   .tab.active { background: var(--den); color: var(--trang); }
   .chips { display: flex; gap: 8px; flex-wrap: wrap; }
-  .chip { background: transparent; border: 1.5px solid var(--den); color: var(--den); padding: 6px 14px; border-radius: 99px; font: 700 14px var(--body); }
+  .chip { background: transparent; border: 1.5px solid var(--den); color: var(--den); padding: 6px 14px; border-radius: 99px; font: 700 17px var(--body); }
   .chip.active { background: var(--cam); border-color: var(--cam); color: var(--trang); }
   .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(270px, 1fr)); gap: 14px; }
   .decard { text-align: left; background: var(--trang); border-radius: 22px; padding: 18px 20px; display: flex; flex-direction: column; gap: 8px;
     box-shadow: 0 0 0 1.5px var(--vien) inset; transition: box-shadow .15s, transform .15s; }
   .decard:hover { box-shadow: 0 0 0 2px var(--cam) inset; transform: translateY(-2px); }
   .decard-top { display: flex; justify-content: space-between; align-items: center; }
-  .tag { font: 700 12px/1 var(--body); letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; }
+  .tag { font: 700 14px/1 var(--body); letter-spacing: 1.5px; text-transform: uppercase; padding: 6px 10px; border-radius: 99px; }
   .tag.w { background: var(--cam); color: var(--trang); }
   .tag.s { background: var(--den); color: var(--trang); }
   .ma { font: 600 13px ui-monospace, monospace; color: var(--mo); }
   .ten { font: 900 26px/1 var(--head); }
-  .trich { font-size: 14px; color: var(--mo); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-  .meta { font-size: 13px; color: var(--mo); display: flex; gap: 12px; align-items: center; margin-top: 2px; }
+  .trich { font-size: 17px; color: var(--mo); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+  .meta { font-size: 16px; color: var(--mo); display: flex; gap: 12px; align-items: center; margin-top: 2px; }
   .done-badge { color: var(--xanh); font-weight: 700; }
   .empty { grid-column: 1 / -1; text-align: center; padding: 40px 0; color: var(--mo); }
   .empty img { width: 64px; opacity: .5; filter: grayscale(1); }
@@ -104,13 +104,13 @@
   .split { display: grid; grid-template-columns: 2fr 3fr; gap: 16px; align-items: start; }
   .prompt { position: sticky; top: 80px; max-height: calc(100vh - 100px); overflow: auto; }
   .prompt h3 { margin: 0 0 12px; }
-  .prompt-text { white-space: pre-wrap; font-size: 16px; }
+  .prompt-text { white-space: pre-wrap; font-size: 19px; }
   .prompt img { max-width: 100%; border-radius: 14px; margin-bottom: 14px; display: block; }
   .editor { display: flex; flex-direction: column; padding: 0; overflow: hidden; }
-  #wText { border: 0; resize: vertical; min-height: 60vh; padding: 24px; font: 17px/1.8 var(--body); color: var(--chu); outline: none; background: var(--trang); }
+  #wText { border: 0; resize: vertical; min-height: 60vh; padding: 24px; font: 20px/1.8 var(--body); color: var(--chu); outline: none; background: var(--trang); }
   .editorbar { display: flex; align-items: center; gap: 14px; padding: 12px 16px 12px 22px; background: var(--kem); border-top: 1.5px solid var(--vien); flex-wrap: wrap; }
   #wCount { font: 800 22px/1 var(--head); }
-  #wSaved { font-size: 13px; }
+  #wSaved { font-size: 16px; }
   .spacer { flex: 1; }
 
   /* ---------- Speaking ---------- */
@@ -124,16 +124,16 @@
   @keyframes nhay { 50% { opacity: .25; } }
   .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
   #sNotes { width: 100%; min-height: 120px; margin-top: 20px; padding: 14px 16px; border: 2px dashed var(--vien); border-radius: 16px;
-    font: 15px/1.6 var(--body); background: var(--kem); resize: vertical; }
+    font: 18px/1.6 var(--body); background: var(--kem); resize: vertical; }
   #sAudio { width: 100%; margin-top: 20px; }
-  .fallback { margin-top: 22px; text-align: left; font-size: 14px; color: var(--mo); border-top: 1.5px solid var(--vien); padding-top: 14px; }
+  .fallback { margin-top: 22px; text-align: left; font-size: 17px; color: var(--mo); border-top: 1.5px solid var(--vien); padding-top: 14px; }
   .fallback summary { cursor: pointer; font-weight: 600; }
 
   /* ---------- Đã nộp ---------- */
   .done-card { text-align: center; max-width: 500px; margin: 40px auto; padding: 40px 28px; }
   .done-card img { width: 96px; display: block; margin: 0 auto 18px; animation: lac 1.6s ease-in-out infinite; transform-origin: 50% 90%; }
   @keyframes lac { 0%,100% { transform: rotate(-4deg); } 50% { transform: rotate(4deg); } }
-  .done-card h1 { font-size: 42px; margin-bottom: 8px; }
+  .done-card h1 { font-size: 50px; margin-bottom: 8px; }
   .done-card .btn { margin-top: 18px; }
 
   /* ---------- Phủ màn hình & thông báo ---------- */
@@ -143,9 +143,10 @@
     animation: quay .8s linear infinite; margin: 0 auto 12px; }
   @keyframes quay { to { transform: rotate(360deg); } }
   .toast { position: fixed; bottom: 22px; left: 50%; transform: translateX(-50%); background: var(--den); color: var(--trang);
-    padding: 12px 20px; border-radius: 99px; font-size: 14px; z-index: 30; box-shadow: 0 0 0 2px var(--cam); max-width: calc(100% - 32px); text-align: center; }
-  footer { text-align: center; color: var(--mo); font: 700 16px var(--head); padding: 0 16px 28px; }
-  footer b { color: var(--cam); }
+    padding: 12px 20px; border-radius: 99px; font-size: 17px; z-index: 30; box-shadow: 0 0 0 2px var(--cam); max-width: calc(100% - 32px); text-align: center; }
+  footer { text-align: center; color: var(--cam); font: 800 18px/1.5 var(--head); padding: 0 16px 28px; }
+  footer b { color: var(--den); }
+  footer a { color: inherit; text-decoration: none; }
 
   @media (max-width: 860px) {
     .split { grid-template-columns: 1fr; }
@@ -155,20 +156,20 @@
   @media (max-width: 560px) {
     main { padding-top: 16px; }
     .brand-sub { display: none; }
-    .brand-name { font-size: 21px; }
-    .who { max-width: 42vw; font-size: 13px; padding: 5px 12px; }
-    .hero { padding: 22px; } .hero h1 { font-size: 36px; } .hero p { font-size: 19px; }
-    .seg { width: 100%; } .tab { flex: 1; padding: 9px 8px; font-size: 16px; }
-    .tasktitle { font-size: 22px; } .timer { font-size: 22px; min-width: 92px; padding: 8px 12px; }
-    .taskbar .btn-vien { padding: 8px 12px; font-size: 15px; }
-    .bigtime { font-size: 56px; }
+    .brand-name { font-size: 25px; }
+    .who { max-width: 42vw; font-size: 16px; padding: 5px 12px; }
+    .hero { padding: 22px; } .hero h1 { font-size: 43px; } .hero p { font-size: 23px; }
+    .seg { width: 100%; } .tab { flex: 1; padding: 9px 8px; font-size: 19px; }
+    .tasktitle { font-size: 26px; } .timer { font-size: 26px; min-width: 92px; padding: 8px 12px; }
+    .taskbar .btn-vien { padding: 8px 12px; font-size: 18px; }
+    .bigtime { font-size: 67px; }
     .card { padding: 20px; border-radius: 20px; }
   }
 
   /* ---------- Khóa học ---------- */
   .hero-row { display: flex; align-items: center; gap: 18px; position: relative; z-index: 1; }
   .kicon { width: 76px; height: 76px; border-radius: 20px; flex: none; box-shadow: 0 0 0 4px rgba(255,255,255,.55); }
-  .hero .khoa-ten { font: 800 15px/1 var(--body); letter-spacing: 2.5px; text-transform: uppercase; opacity: .9; margin-bottom: 6px; }
+  .hero .khoa-ten { font: 800 18px/1 var(--body); letter-spacing: 2.5px; text-transform: uppercase; opacity: .9; margin-bottom: 6px; }
   .khoa-pills { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 16px; position: relative; z-index: 1; }
   .kpill { background: transparent; color: var(--trang); border: 2px solid rgba(255,255,255,.8); border-radius: 99px; padding: 6px 14px; font: 800 17px/1 var(--head); }
   .kpill.active { background: var(--trang); color: var(--cam); border-color: var(--trang); }
@@ -179,15 +180,15 @@
   .q { margin-bottom: 14px; transition: box-shadow .2s; }
   .q-head { display: flex; align-items: baseline; gap: 10px; margin-bottom: 10px; }
   .q-so { font: 900 26px/1 var(--head); }
-  .q-dang { font: 700 12px/1 var(--body); letter-spacing: 2px; text-transform: uppercase; color: var(--cam-dam); }
-  .q-diem { margin-left: auto; font-size: 13px; color: var(--mo); white-space: nowrap; }
-  .q-text { white-space: pre-wrap; font-size: 17px; line-height: 1.75; }
+  .q-dang { font: 700 14px/1 var(--body); letter-spacing: 2px; text-transform: uppercase; color: var(--cam-dam); }
+  .q-diem { margin-left: auto; font-size: 16px; color: var(--mo); white-space: nowrap; }
+  .q-text { white-space: pre-wrap; font-size: 20px; line-height: 1.75; }
   .q img.q-img { max-width: 100%; border-radius: 14px; display: block; margin-bottom: 12px; }
   .note { background: var(--cam-nhat); border-left: 6px solid var(--cam); border-radius: 16px; padding: 14px 20px; margin: 22px 0 14px;
-    white-space: pre-wrap; font: 600 16px/1.6 var(--body); color: var(--cam-dam); }
+    white-space: pre-wrap; font: 600 19px/1.6 var(--body); color: var(--cam-dam); }
   .opts { display: grid; gap: 8px; margin-top: 12px; }
   .opt { display: flex; align-items: center; gap: 12px; text-align: left; background: var(--kem); border: 2px solid var(--vien); border-radius: 14px;
-    padding: 10px 14px; font: 500 16px/1.4 var(--body); color: var(--chu); transition: border-color .12s, background .12s; }
+    padding: 10px 14px; font: 500 19px/1.4 var(--body); color: var(--chu); transition: border-color .12s, background .12s; }
   .opt:hover { border-color: var(--cam); }
   .opt:disabled, .chipw:disabled { opacity: 1; cursor: default; }
   .opt:disabled:not(.dung):not(.sai) { opacity: .6; }
@@ -199,38 +200,38 @@
   .opt.dung .lb { background: var(--xanh); color: var(--trang); box-shadow: none; }
   .opt.sai { border-color: var(--do); background: #FDECE8; }
   .opt.sai .lb { background: var(--do); color: var(--trang); box-shadow: none; }
-  input.blank { border: 0; border-bottom: 2.5px solid var(--cam); background: var(--kem); border-radius: 6px 6px 0 0; font: 600 17px var(--body);
+  input.blank { border: 0; border-bottom: 2.5px solid var(--cam); background: var(--kem); border-radius: 6px 6px 0 0; font: 600 20px var(--body);
     width: 8.5em; max-width: 100%; padding: 1px 6px; text-align: center; color: var(--chu); }
   input.blank:focus { outline: none; background: var(--cam-nhat); }
   input.blank.dung { border-color: var(--xanh); color: var(--xanh); background: #E8F6EE; }
   input.blank.sai { border-color: var(--do); color: var(--do); background: #FDECE8; }
   textarea.ans, input.ans { display: block; width: 100%; margin-top: 12px; border: 2px solid var(--vien); border-radius: 14px; padding: 12px 14px;
-    font: 16px/1.6 var(--body); background: var(--kem); color: var(--chu); resize: vertical; }
+    font: 19px/1.6 var(--body); background: var(--kem); color: var(--chu); resize: vertical; }
   textarea.ans:focus, input.ans:focus { outline: none; border-color: var(--cam); background: var(--trang); }
   textarea.ans.dai { min-height: 180px; }
-  .wc { font-size: 13px; color: var(--mo); margin-top: 6px; text-align: right; }
+  .wc { font-size: 16px; color: var(--mo); margin-top: 6px; text-align: right; }
   .loi { border-bottom: 2.5px dashed var(--cam); cursor: pointer; padding: 1px 3px; border-radius: 5px; transition: background .12s; }
   .loi:hover { background: var(--cam-nhat); }
   .loi.chon { background: var(--cam); color: var(--trang); border-bottom-color: var(--cam); }
   .loi.dung { background: var(--xanh); color: var(--trang); border-bottom-color: var(--xanh); }
-  .hint { font-size: 13px; color: var(--mo); margin-top: 8px; }
+  .hint { font-size: 16px; color: var(--mo); margin-top: 8px; }
   .placed { min-height: 54px; border: 2px dashed var(--vien); border-radius: 14px; padding: 8px; display: flex; flex-wrap: wrap; gap: 8px;
     background: var(--kem); margin-top: 12px; align-items: center; }
-  .placed:empty::before { content: "Bấm vào các mảnh bên dưới theo đúng thứ tự"; color: var(--mo); font-size: 14px; padding: 0 6px; }
+  .placed:empty::before { content: "Bấm vào các mảnh bên dưới theo đúng thứ tự"; color: var(--mo); font-size: 17px; padding: 0 6px; }
   .pool { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-  .chipw { background: var(--trang); border: 2px solid var(--den); border-radius: 99px; padding: 6px 14px; font: 600 15px var(--body); color: var(--den); }
+  .chipw { background: var(--trang); border: 2px solid var(--den); border-radius: 99px; padding: 6px 14px; font: 600 18px var(--body); color: var(--den); }
   .placed .chipw { background: var(--den); color: var(--trang); }
   .mrow { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; align-items: center; padding: 10px 0; border-bottom: 1.5px solid var(--vien); }
   .mrow:last-child { border-bottom: 0; }
   .mrow .ml { font-weight: 600; }
-  select.msel { width: 100%; padding: 10px 12px; border: 2px solid var(--vien); border-radius: 12px; font: 15px var(--body); background: var(--kem); color: var(--chu); }
+  select.msel { width: 100%; padding: 10px 12px; border: 2px solid var(--vien); border-radius: 12px; font: 18px var(--body); background: var(--kem); color: var(--chu); }
   select.msel.dung { border-color: var(--xanh); background: #E8F6EE; }
   select.msel.sai { border-color: var(--do); background: #FDECE8; }
   .mrec { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 14px; background: var(--kem); border-radius: 16px; padding: 12px 14px; }
   .mrec .t { font: 800 26px/1 var(--head); font-variant-numeric: tabular-nums; min-width: 110px; }
   .mrec.dang .t { color: var(--do); }
   .mrec audio { flex: 1 1 220px; min-width: 0; height: 40px; }
-  .kq { margin-top: 14px; padding: 12px 16px; border-radius: 14px; font-size: 15px; line-height: 1.6; }
+  .kq { margin-top: 14px; padding: 12px 16px; border-radius: 14px; font-size: 18px; line-height: 1.6; }
   .kq div + div { margin-top: 4px; }
   .kq b { font-weight: 700; }
   .kq.dung { background: #E8F6EE; } .kq.sai { background: #FDECE8; } .kq.mot-phan { background: #FFF3D6; } .kq.cho-cham { background: var(--kem); }
@@ -251,24 +252,34 @@
   @media (max-width: 560px) {
     .kicon { width: 60px; height: 60px; border-radius: 16px; }
     .mrow { grid-template-columns: 1fr; gap: 6px; }
-    .score .so { font-size: 68px; }
+    .score .so { font-size: 82px; }
   }
 
   /* ---------- Writing Full: tab Task 1 / Task 2 ---------- */
   .wtabs { display: flex; gap: 6px; padding: 10px 12px 0; background: var(--kem); border-bottom: 1.5px solid var(--vien); }
   .wtab { display: flex; align-items: baseline; gap: 8px; background: transparent; border-radius: 12px 12px 0 0; padding: 10px 16px;
     font: 800 19px/1 var(--head); color: var(--mo); }
-  .wtab small { font: 600 12px var(--body); }
+  .wtab small { font: 600 14px var(--body); }
   .wtab.active { background: var(--trang); color: var(--chu); box-shadow: 0 -2px 0 var(--cam) inset; }
 
-  button.who { background: transparent; font: 400 14px var(--body); cursor: pointer; }
+  button.who { background: transparent; font: 400 17px var(--body); cursor: pointer; }
   button.who:hover { background: rgba(255,122,26,.18); }
 
   /* ---------- Nhóm đề theo phần ---------- */
   .nhom-tieude { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; margin: 14px 0 0; padding-bottom: 6px;
     border-bottom: 2px solid var(--vien); font: 900 24px/1 var(--head); }
   .nhom-tieude:first-child { margin-top: 0; }
-  .nhom-tieude small { font: 600 13px var(--body); color: var(--mo); }
+  .nhom-tieude small { font: 600 16px var(--body); color: var(--mo); }
+  /* chữ đề bài & đáp án đậm hơn một chút cho dễ đọc với Darker Grotesque */
+  .opt, .q-text, .prompt-text { font-weight: 500; }
+  /* các ô gõ dùng Be Vietnam Pro cho dễ gõ, dễ soát lỗi */
+  #wText, textarea.ans, input.ans, input.blank, input.field, select.msel, #sNotes {
+    font-family: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif; font-weight: 400; }
+  #wText { font-size: 17px; line-height: 1.8; }
+  textarea.ans, input.ans { font-size: 16px; }
+  input.blank { font-size: 16px; font-weight: 500; }
+  input.field { font-size: 18px; font-weight: 500; }
+  select.msel, #sNotes { font-size: 15px; }
 </style>
 </head>
 <body>
@@ -399,7 +410,7 @@
     </div>
   </section>
 </main>
-<footer><b>0914589406</b> <b>·</b> <b>hieuhoang8598@gmail.com</b> <b>·</b> <b>28/384 Lạch Tray, Gia Viên, Hải Phòng</b></footer>
+<footer>0914589406 <b>·</b> hieuhoang8598@gmail.com <b>·</b> 28/384 Lạch Tray, Gia Viên, Hải Phòng</footer>
 
 <div id="busy" class="busy" hidden><div><div class="spinner"></div><p id="busyMsg"></p></div></div>
 
