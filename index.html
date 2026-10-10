@@ -445,10 +445,23 @@ function thoiDiemBatDau(maDe) {
   const now = Date.now(); phien(batDauKey(maDe), String(now)); return now;
 }
 function xoaBatDau(maDe) { phien(batDauKey(maDe), null); }
+const MAN_LAM_BAI = { 'scr-writing': 'wBack', 'scr-speaking': 'sBack', 'scr-baitap': 'bBack', 'scr-done': 'doneBack' };
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   window.scrollTo(0, 0);
+  // Nút Back của trình duyệt: vào màn làm bài thì thêm 1 bước lịch sử, ra danh sách thì bỏ bước đó
+  const daCo = history.state && history.state.lamBai;
+  if (MAN_LAM_BAI[id] && !daCo) history.pushState({ lamBai: true }, '');
+  else if (!MAN_LAM_BAI[id] && daCo && !S.moLai) { S.boQuaPop = true; history.back(); }
 }
+window.addEventListener('popstate', () => {
+  if (S.boQuaPop) { S.boQuaPop = false; return; }
+  const dang = document.querySelector('.screen.on');
+  const nut = dang && MAN_LAM_BAI[dang.id];
+  if (!nut) return;
+  $(nut).click(); // chạy đúng như bấm nút "← Đề" (có hỏi xác nhận nếu đang ghi âm)
+  if (document.querySelector('.screen.on') === dang) history.pushState({ lamBai: true }, ''); // em chọn ở lại
+});
 function vis(id, on) { $(id).hidden = !on; }
 function busy(text) { $('busy').hidden = !text; if (text) $('busyMsg').textContent = text; }
 function msg(e) { return String((e && e.message) || e).replace(/^(Error|Exception):\s*/, ''); }
@@ -496,9 +509,11 @@ async function doLogin(e, tuDong) {
       if (vt.nhom) { S.nhom = vt.nhom; document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.nhom === vt.nhom)); }
       if (vt.loai !== undefined) S.loai = vt.loai;
     }
-    renderKhoa(); renderList(); show('scr-list');
     const d = vt && vt.maDe && S.de.find(x => x.maDe === vt.maDe);
+    S.moLai = !!d; // đang mở lại bài sau khi refresh → giữ nguyên bước lịch sử hiện có
+    renderKhoa(); renderList(); show('scr-list');
     if (d) { busy(false); openDe(d, true); }
+    S.moLai = false;
   } catch (err) {
     if (tuDong) phien('dangnhap', null);
     $('loginErr').textContent = msg(err);
