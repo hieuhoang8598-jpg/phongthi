@@ -260,6 +260,15 @@
     font: 800 19px/1 var(--head); color: var(--mo); }
   .wtab small { font: 600 12px var(--body); }
   .wtab.active { background: var(--trang); color: var(--chu); box-shadow: 0 -2px 0 var(--cam) inset; }
+
+  button.who { background: transparent; font: 400 14px var(--body); cursor: pointer; }
+  button.who:hover { background: rgba(255,122,26,.18); }
+
+  /* ---------- Nhóm đề theo phần ---------- */
+  .nhom-tieude { grid-column: 1 / -1; display: flex; align-items: baseline; gap: 10px; margin: 14px 0 0; padding-bottom: 6px;
+    border-bottom: 2px solid var(--vien); font: 900 24px/1 var(--head); }
+  .nhom-tieude:first-child { margin-top: 0; }
+  .nhom-tieude small { font: 600 13px var(--body); color: var(--mo); }
 </style>
 </head>
 <body>
@@ -269,7 +278,7 @@
       <img src="icon.png" alt="">
       <div><div class="brand-name">Lớp thầy Hiếu</div><div class="brand-sub">Phòng luyện thi</div></div>
     </div>
-    <div class="who" id="who" hidden></div>
+    <button class="who" id="who" type="button" title="Bấm để đăng xuất" hidden></button>
   </div>
 </header>
 
@@ -422,6 +431,20 @@ function store(k, v) {
     if (v === null) localStorage.removeItem(k); else localStorage.setItem(k, v);
   } catch (e) { return null; }
 }
+function phien(k, v) { // sessionStorage: nhớ trong tab này, tự xoá khi đóng tab
+  try {
+    if (v === undefined) return sessionStorage.getItem(k);
+    if (v === null) sessionStorage.removeItem(k); else sessionStorage.setItem(k, v);
+  } catch (e) { return null; }
+}
+function luuViTri(v) { phien('vitri', v ? JSON.stringify(v) : null); }
+function batDauKey(maDe) { return 'batdau_' + S.ma + '_' + maDe; }
+function thoiDiemBatDau(maDe) {
+  const cu = Number(phien(batDauKey(maDe)));
+  if (cu) return cu;
+  const now = Date.now(); phien(batDauKey(maDe), String(now)); return now;
+}
+function xoaBatDau(maDe) { phien(batDauKey(maDe), null); }
 function show(id) {
   document.querySelectorAll('.screen').forEach(s => s.classList.toggle('on', s.id === id));
   window.scrollTo(0, 0);
@@ -452,25 +475,40 @@ async function call(action, ...args) {
 }
 
 /* ====== ĐĂNG NHẬP ====== */
-async function doLogin(e) {
+async function doLogin(e, tuDong) {
   if (e) e.preventDefault();
-  const ma = $('inMa').value.trim(), pin = $('inPin').value.trim();
+  const ma = tuDong ? tuDong.ma : $('inMa').value.trim(), pin = tuDong ? tuDong.pin : $('inPin').value.trim();
   $('loginErr').textContent = '';
   if (!ma || !pin) { $('loginErr').textContent = 'Nhập đủ mã học sinh và PIN nhé.'; return; }
-  busy('Đang vào lớp…');
+  busy(tuDong ? 'Đang mở lại…' : 'Đang vào lớp…');
   try {
     const r = await call('login', ma, pin);
+    phien('dangnhap', JSON.stringify({ ma: ma, pin: pin }));
     Object.assign(S, { hs: r.hs, ma: ma, pin: pin, de: r.deBai, daNop: r.daNop || {} });
     const nhoKhoa = store('khoa_' + ma);
     S.khoa = r.hs.khoa.indexOf(nhoKhoa) > -1 ? nhoKhoa : r.hs.khoa[0];
     store('maHS', ma);
     $('who').textContent = r.hs.hoTen + (r.hs.lop ? ' · ' + r.hs.lop : ''); $('who').hidden = false;
     $('hello').textContent = 'Chào ' + r.hs.hoTen.split(' ').pop() + '!';
+    const vt = tuDong ? JSON.parse(phien('vitri') || 'null') : null;
+    if (vt) {
+      if (vt.khoa && r.hs.khoa.indexOf(vt.khoa) > -1) S.khoa = vt.khoa;
+      if (vt.nhom) { S.nhom = vt.nhom; document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x.dataset.nhom === vt.nhom)); }
+      if (vt.loai !== undefined) S.loai = vt.loai;
+    }
     renderKhoa(); renderList(); show('scr-list');
+    const d = vt && vt.maDe && S.de.find(x => x.maDe === vt.maDe);
+    if (d) { busy(false); openDe(d, true); }
   } catch (err) {
+    if (tuDong) phien('dangnhap', null);
     $('loginErr').textContent = msg(err);
   } finally { busy(false); }
 }
+$('who').onclick = () => {
+  if (!confirm('Đăng xuất khỏi tài khoản ' + S.hs.hoTen + '?')) return;
+  phien('dangnhap', null); luuViTri(null);
+  location.reload();
+};
 $('loginForm').addEventListener('submit', doLogin);
 
 /* ====== DANH SÁCH ĐỀ ====== */
@@ -482,7 +520,7 @@ function renderKhoa() {
   box.hidden = S.hs.khoa.length < 2;
   S.hs.khoa.forEach(k => {
     const b = el('button', 'kpill' + (k === S.khoa ? ' active' : ''), k);
-    b.onclick = () => { S.khoa = k; store('khoa_' + S.ma, k); S.loai = ''; renderKhoa(); renderList(); };
+    b.onclick = () => { S.khoa = k; store('khoa_' + S.ma, k); S.loai = ''; renderKhoa(); renderList(); luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai }); };
     box.appendChild(b);
   });
 }
@@ -507,7 +545,20 @@ function renderList() {
     e.append(im, el('p', null, 'Chưa có bài nào ở mục này. Thầy sẽ mở bài sớm thôi!'));
     box.appendChild(e); return;
   }
+  const THU_TU = ['Writing|Task 1', 'Writing|Task 2', 'Writing|Full', 'Speaking|Part 1', 'Speaking|Part 2', 'Speaking|Part 3', 'Speaking|Full', 'Bài tập|'];
+  const khoaNhom = d => d.loai + '|' + (d.loai === 'Bài tập' ? '' : d.phan);
+  const viTri = d => { const i = THU_TU.indexOf(khoaNhom(d)); return i < 0 ? 99 : i; };
+  const tenNhom = d => d.loai === 'Bài tập' ? 'Bài tập' : d.loai + ' · ' + (d.phan === 'Full' ? 'Full test' : d.phan);
+  items.sort((a, b) => viTri(a) - viTri(b) || khoaNhom(a).localeCompare(khoaNhom(b)) ||
+    a.maDe.localeCompare(b.maDe, undefined, { numeric: true }));
+  let nhomTruoc = null;
   items.forEach(d => {
+    if (khoaNhom(d) !== nhomTruoc) {
+      nhomTruoc = khoaNhom(d);
+      const dem = items.filter(x => khoaNhom(x) === nhomTruoc).length;
+      const h = el('div', 'nhom-tieude'); h.append(el('span', null, tenNhom(d)), el('small', null, dem + ' đề'));
+      box.appendChild(h);
+    }
     const b = el('button', 'decard');
     const top = el('div', 'decard-top');
     const tag = el('span', 'tag ' + (d.loai === 'Writing' ? 'w' : d.loai === 'Speaking' ? 's' : 'b'), d.loai);
@@ -526,13 +577,14 @@ function renderList() {
 }
 document.querySelectorAll('.tab').forEach(t => t.onclick = () => {
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('active', x === t));
-  S.nhom = t.dataset.nhom; renderList();
+  S.nhom = t.dataset.nhom; renderList(); luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai });
 });
-function veDanhSach() { renderList(); show('scr-list'); }
+function veDanhSach() { renderList(); show('scr-list'); luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai }); }
 
-function openDe(d) {
-  if (S.daNop[d.maDe] && !confirm('Em đã nộp bài này rồi. Làm lại và nộp thêm một lần nữa?')) return;
+function openDe(d, moLai) {
+  if (!moLai && S.daNop[d.maDe] && !confirm('Em đã nộp bài này rồi. Làm lại và nộp thêm một lần nữa?')) return;
   S.cur = d;
+  luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai, maDe: d.maDe });
   if (d.loai === 'Bài tập') openBaiTap(d);
   else if (d.loai === 'Speaking' && d.phan === 'Full') openSpeakingFull(d);
   else if (d.loai === 'Speaking') openSpeaking(d);
@@ -548,7 +600,7 @@ function renderPrompt(box, d) {
 /* ====== ĐỒNG HỒ WRITING ====== */
 function elapsed() { return Math.round((Date.now() - S.start) / 1000); }
 function startTimer(total) {
-  stopTimer(); S.start = Date.now();
+  stopTimer(); S.start = thoiDiemBatDau(S.cur.maDe);
   const t = $('wTimer');
   const tick = () => {
     const e = elapsed();
@@ -625,14 +677,14 @@ $('wSubmit').onclick = async () => {
   $('wSubmit').disabled = true; busy('Đang nộp bài…');
   try {
     const r = await call('submitWriting', S.ma, S.pin, d.maDe, S.w.full ? texts : texts[0], elapsed());
-    texts.forEach((_, k) => store(draftKey(d, k), null)); stopTimer(); S.daNop[d.maDe] = r.ketQua;
+    texts.forEach((_, k) => store(draftKey(d, k), null)); stopTimer(); xoaBatDau(d.maDe); S.daNop[d.maDe] = r.ketQua;
     done('Bài ' + d.maDe + ' (' + r.ketQua + ') đã về tới chỗ thầy. Thầy chấm xong sẽ gửi nhận xét cho em nhé!');
   } catch (e) {
     alert('Chưa nộp được: ' + msg(e) + '\nBài vẫn được giữ trên máy, em thử nộp lại nhé.');
     $('wSubmit').disabled = false;
   } finally { busy(false); }
 };
-$('wBack').onclick = () => { stopTimer(); veDanhSach(); };
+$('wBack').onclick = () => { stopTimer(); xoaBatDau(S.cur.maDe); veDanhSach(); };
 
 /* ====== MICRO (dùng chung) ====== */
 async function getStream() {
@@ -764,7 +816,7 @@ async function openBaiTap(d) {
   busy('Đang mở bài…');
   try {
     const data = await call('getBaiTap', S.ma, S.pin, d.maDe);
-    S.bt = { maDe: data.maDe, ten: data.ten, items: data.items, ui: [], start: Date.now(), xong: false, rec: null };
+    S.bt = { maDe: data.maDe, ten: data.ten, items: data.items, ui: [], start: thoiDiemBatDau(data.maDe), xong: false, rec: null };
     $('bTitle').textContent = data.ten + ' · ' + data.maDe;
     $('bScore').innerHTML = '';
     $('bFoot').hidden = false; $('bSubmit').disabled = false;
@@ -802,7 +854,7 @@ function renderBaiTap() {
 function openSpeakingFull(d) {
   const ph = d.phanDe || [];
   if (ph.length < 3) { alert('Đề này thiếu phần (cần Part 1, Part 2, Part 3 cách nhau bằng dòng ---). Em báo thầy nhé.'); return; }
-  S.bt = { kieu: 'speakFull', maDe: d.maDe, ten: d.ten, ui: [], start: Date.now(), xong: false, rec: null,
+  S.bt = { kieu: 'speakFull', maDe: d.maDe, ten: d.ten, ui: [], start: thoiDiemBatDau(d.maDe), xong: false, rec: null,
     items: ph.slice(0, 3).map((q, k) => ({ t: 'speak', q: q, nhan: 'Part ' + (k + 1),
       gioiHan: k === 1 ? 120 : (d.thoiGian ? d.thoiGian * 60 : 300), chuanBi: k === 1 ? 60 : 0 })) };
   $('bTitle').textContent = d.ten + ' · ' + d.maDe;
@@ -1040,6 +1092,7 @@ $('bSubmit').onclick = async () => {
     busy('Đang chấm bài…');
     const r = await call('submitBaiTap', S.ma, S.pin, S.bt.maDe, answers, Math.round((Date.now() - S.bt.start) / 1000));
     S.bt.xong = true; store(btKey(), null); S.daNop[S.bt.maDe] = r.ketQuaText || 'Đã nộp';
+    xoaBatDau(S.bt.maDe); luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai });
     hienKetQua(r);
   } catch (e) {
     alert('Chưa nộp được: ' + msg(e) + '\nBài vẫn còn nguyên, em bấm Nộp bài lần nữa nhé.');
@@ -1080,6 +1133,7 @@ function hienKetQua(r) {
 }
 
 function roiBaiTap() {
+  if (S.bt) xoaBatDau(S.bt.maDe);
   if (S.bt) S.bt.ui.forEach(u => { if (u && u.dung) u.dung(); });
   if (S.bt && S.bt.rec) { S.bt.rec._huy = true; S.bt.rec.stop(); }
   stopStream();
@@ -1091,11 +1145,23 @@ $('bBack').onclick = () => {
 };
 
 /* ====== ĐÃ NỘP ====== */
-function done(text) { $('doneMsg').textContent = text; show('scr-done'); }
+function done(text) { $('doneMsg').textContent = text; show('scr-done'); luuViTri({ khoa: S.khoa, nhom: S.nhom, loai: S.loai }); }
 $('doneBack').onclick = veDanhSach;
 
 /* ====== KHỞI ĐỘNG ====== */
 $('inMa').value = store('maHS') || '';
+// Vừa refresh trang → tự đăng nhập lại và mở lại đúng bài đang làm
+(function () {
+  let dn = null;
+  try { dn = JSON.parse(phien('dangnhap') || 'null'); } catch (e) { dn = null; }
+  if (dn && dn.ma && dn.pin) doLogin(null, dn);
+})();
+// Cảnh báo khi refresh/đóng trang lúc đang có ghi âm chưa nộp
+window.addEventListener('beforeunload', e => {
+  const coGhiAm = (S.rec && S.rec.state === 'recording') || ($('scr-speaking').classList.contains('on') && S.blob) ||
+    (S.bt && !S.bt.xong && $('scr-baitap').classList.contains('on') && (S.bt.rec || S.bt.ui.some(u => u && u.st && u.st.blob)));
+  if (coGhiAm) { e.preventDefault(); e.returnValue = ''; }
+});
 </script>
 </body>
 </html>
