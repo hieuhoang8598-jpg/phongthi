@@ -253,6 +253,13 @@
     .mrow { grid-template-columns: 1fr; gap: 6px; }
     .score .so { font-size: 68px; }
   }
+
+  /* ---------- Writing Full: tab Task 1 / Task 2 ---------- */
+  .wtabs { display: flex; gap: 6px; padding: 10px 12px 0; background: var(--kem); border-bottom: 1.5px solid var(--vien); }
+  .wtab { display: flex; align-items: baseline; gap: 8px; background: transparent; border-radius: 12px 12px 0 0; padding: 10px 16px;
+    font: 800 19px/1 var(--head); color: var(--mo); }
+  .wtab small { font: 600 12px var(--body); }
+  .wtab.active { background: var(--trang); color: var(--chu); box-shadow: 0 -2px 0 var(--cam) inset; }
 </style>
 </head>
 <body>
@@ -317,6 +324,7 @@
     <div class="split">
       <div class="card prompt" id="wPrompt"></div>
       <div class="card editor">
+        <div class="wtabs" id="wTabs" hidden></div>
         <textarea id="wText" spellcheck="false" autocorrect="off" autocapitalize="off" autocomplete="off"
           placeholder="Em viết bài ở đây nhé…"></textarea>
         <div class="editorbar">
@@ -526,6 +534,7 @@ function openDe(d) {
   if (S.daNop[d.maDe] && !confirm('Em đã nộp bài này rồi. Làm lại và nộp thêm một lần nữa?')) return;
   S.cur = d;
   if (d.loai === 'Bài tập') openBaiTap(d);
+  else if (d.loai === 'Speaking' && d.phan === 'Full') openSpeakingFull(d);
   else if (d.loai === 'Speaking') openSpeaking(d);
   else openWriting(d);
 }
@@ -554,39 +563,70 @@ function startTimer(total) {
 function stopTimer() { clearInterval(S.timer); S.timer = null; }
 
 /* ====== WRITING ====== */
-function draftKey(d) { return 'nhap_' + S.ma + '_' + d.maDe; }
+function draftKey(d, k) { return 'nhap_' + S.ma + '_' + d.maDe + (k ? '_' + k : ''); }
 function openWriting(d) {
+  const full = d.phan === 'Full' && d.phanDe && d.phanDe.length > 1;
+  const de = full ? d.phanDe.slice(0, 2) : [d.noiDung];
+  S.w = { full: full, cur: 0, phan: full ? ['Task 1', 'Task 2'] : [d.phan],
+    de: de.map((nd, k) => ({ maDe: d.maDe, noiDung: nd, hinhAnh: k === 0 ? d.hinhAnh : '' })),
+    texts: de.map((_, k) => store(draftKey(d, k)) || '') };
   $('wTitle').textContent = d.ten + ' · ' + d.maDe;
-  renderPrompt($('wPrompt'), d);
-  $('wText').value = store(draftKey(d)) || '';
-  $('wSaved').textContent = $('wText').value ? 'Đã khôi phục bản nháp' : '';
-  updateCount();
+  $('wSaved').textContent = S.w.texts.some(Boolean) ? 'Đã khôi phục bản nháp' : '';
+  $('wTabs').hidden = !full;
   $('wSubmit').disabled = false;
+  chonTask(0);
   startTimer(d.thoiGian * 60);
   show('scr-writing'); $('wText').focus();
 }
+function chonTask(k) {
+  S.w.texts[S.w.cur] = $('wText').value === undefined ? '' : (S.w.ready ? $('wText').value : S.w.texts[S.w.cur]);
+  S.w.cur = k; S.w.ready = true;
+  renderPrompt($('wPrompt'), S.w.de[k]);
+  $('wText').value = S.w.texts[k];
+  renderTabs(); updateCount();
+}
+function renderTabs() {
+  const box = $('wTabs'); box.innerHTML = '';
+  if (!S.w.full) return;
+  S.w.phan.forEach((ph, k) => {
+    const b = el('button', 'wtab' + (k === S.w.cur ? ' active' : ''));
+    b.type = 'button';
+    b.append(el('span', null, ph), el('small', null, wc(k === S.w.cur ? $('wText').value : S.w.texts[k]) + ' từ'));
+    b.onclick = () => { if (k !== S.w.cur) { chonTask(k); $('wText').focus(); } };
+    box.appendChild(b);
+  });
+}
 function updateCount() {
-  const n = wc($('wText').value), min = TU_TOI_THIEU[S.cur && S.cur.phan];
-  $('wCount').textContent = n + ' từ' + (min ? ' / ' + min : '');
+  const n = wc($('wText').value), min = TU_TOI_THIEU[S.w && S.w.phan[S.w.cur]];
+  $('wCount').textContent = (S.w && S.w.full ? S.w.phan[S.w.cur] + ': ' : '') + n + ' từ' + (min ? ' / ' + min : '');
   $('wCount').style.color = min && n >= min ? 'var(--xanh)' : '';
+  if (S.w && S.w.full) { const sm = $('wTabs').children[S.w.cur]; if (sm) sm.lastChild.textContent = n + ' từ'; }
 }
 $('wText').addEventListener('input', () => {
   updateCount();
+  S.w.texts[S.w.cur] = $('wText').value;
   clearTimeout(S.saveT);
-  S.saveT = setTimeout(() => { store(draftKey(S.cur), $('wText').value); $('wSaved').textContent = 'Đã lưu nháp trên máy'; }, 800);
+  S.saveT = setTimeout(() => {
+    S.w.texts.forEach((t, k) => store(draftKey(S.cur, k), t));
+    $('wSaved').textContent = 'Đã lưu nháp trên máy';
+  }, 800);
 });
 if (KHOA_DAN) ['paste', 'drop'].forEach(ev => $('wText').addEventListener(ev, e => { e.preventDefault(); toast('Không dán được, em tự gõ bài nhé.'); }));
 
 $('wSubmit').onclick = async () => {
-  const d = S.cur, text = $('wText').value, n = wc(text), min = TU_TOI_THIEU[d.phan];
-  if (!n) { alert('Bài viết đang trống.'); return; }
-  const hoi = min && n < min ? 'Bài mới có ' + n + ' từ (yêu cầu tối thiểu ' + min + '). Vẫn nộp?' : 'Nộp bài? Sau khi nộp sẽ không sửa được nữa.';
+  const d = S.cur;
+  S.w.texts[S.w.cur] = $('wText').value;
+  const texts = S.w.texts, so = texts.map(wc);
+  if (!so.some(Boolean)) { alert('Bài viết đang trống.'); return; }
+  const thieu = S.w.phan.map((ph, k) => [ph, so[k], TU_TOI_THIEU[ph]]).filter(([, n, min]) => min && n < min)
+    .map(([ph, n, min]) => (S.w.full ? ph + ' mới có ' : 'Bài mới có ') + n + ' từ (tối thiểu ' + min + ')');
+  const hoi = thieu.length ? thieu.join('\n') + '\nVẫn nộp?' : 'Nộp bài? Sau khi nộp sẽ không sửa được nữa.';
   if (!confirm(hoi)) return;
   $('wSubmit').disabled = true; busy('Đang nộp bài…');
   try {
-    const r = await call('submitWriting', S.ma, S.pin, d.maDe, text, elapsed());
-    store(draftKey(d), null); stopTimer(); S.daNop[d.maDe] = r.ketQua;
-    done('Bài ' + d.maDe + ' (' + r.soTu + ' từ) đã về tới chỗ thầy. Thầy chấm xong sẽ gửi nhận xét cho em nhé!');
+    const r = await call('submitWriting', S.ma, S.pin, d.maDe, S.w.full ? texts : texts[0], elapsed());
+    texts.forEach((_, k) => store(draftKey(d, k), null)); stopTimer(); S.daNop[d.maDe] = r.ketQua;
+    done('Bài ' + d.maDe + ' (' + r.ketQua + ') đã về tới chỗ thầy. Thầy chấm xong sẽ gửi nhận xét cho em nhé!');
   } catch (e) {
     alert('Chưa nộp được: ' + msg(e) + '\nBài vẫn được giữ trên máy, em thử nộp lại nhé.');
     $('wSubmit').disabled = false;
@@ -747,7 +787,7 @@ function renderBaiTap() {
     so++;
     const card = el('div', 'card q');
     const head = el('div', 'q-head');
-    head.append(el('span', 'q-so', 'Câu ' + so), el('span', 'q-dang', TEN_DANG[it.t] || ''));
+    head.append(el('span', 'q-so', it.nhan || 'Câu ' + so), el('span', 'q-dang', it.nhan ? '' : TEN_DANG[it.t] || ''));
     if (it.t !== 'speak' && it.t !== 'write') head.append(el('span', 'q-diem', it.diem + ' điểm'));
     card.appendChild(head);
     if (it.img) { const im = el('img', 'q-img'); im.src = it.img; im.alt = ''; card.appendChild(im); }
@@ -757,6 +797,19 @@ function renderBaiTap() {
     list.appendChild(card);
   });
   capNhatTienDo();
+}
+
+function openSpeakingFull(d) {
+  const ph = d.phanDe || [];
+  if (ph.length < 3) { alert('Đề này thiếu phần (cần Part 1, Part 2, Part 3 cách nhau bằng dòng ---). Em báo thầy nhé.'); return; }
+  S.bt = { kieu: 'speakFull', maDe: d.maDe, ten: d.ten, ui: [], start: Date.now(), xong: false, rec: null,
+    items: ph.slice(0, 3).map((q, k) => ({ t: 'speak', q: q, nhan: 'Part ' + (k + 1),
+      gioiHan: k === 1 ? 120 : (d.thoiGian ? d.thoiGian * 60 : 300), chuanBi: k === 1 ? 60 : 0 })) };
+  $('bTitle').textContent = d.ten + ' · ' + d.maDe;
+  $('bScore').innerHTML = '';
+  $('bFoot').hidden = false; $('bSubmit').disabled = false;
+  renderBaiTap();
+  show('scr-baitap');
 }
 
 function luuNhap() {
@@ -921,7 +974,22 @@ const DUNG = {
         if (st.sec >= it.gioiHan) { toast('Hết thời gian ghi âm câu này.'); rec.stop(); }
       }, 1000);
     };
-    bRec.onclick = batDau;
+    bRec.onclick = () => { huyChuanBi(); batDau(); };
+    // Part 2: 1 phút chuẩn bị rồi tự ghi âm
+    let bPrep = null, notes = null, prepTick = null;
+    const huyChuanBi = () => { if (prepTick) { clearInterval(prepTick); prepTick = null; } if (bPrep) bPrep.hidden = true; };
+    if (it.chuanBi) {
+      bPrep = el('button', 'btn btn-den btn-nho', 'Bắt đầu ' + Math.round(it.chuanBi / 60) + ' phút chuẩn bị'); bPrep.type = 'button';
+      notes = el('textarea', 'ans'); notes.rows = 4; notes.placeholder = 'Ghi chú ý chính (phần này không được nộp)'; notes.hidden = true;
+      bPrep.onclick = () => {
+        if (S.bt.rec) { toast('Em dừng phần ghi âm đang chạy trước đã nhé.'); return; }
+        let left = it.chuanBi; bPrep.hidden = true; notes.hidden = false; notes.focus();
+        bRec.textContent = '🎙 Nói luôn'; bUp.hidden = true;
+        t.textContent = 'Chuẩn bị ' + mmss(left);
+        prepTick = setInterval(() => { left--; t.textContent = 'Chuẩn bị ' + mmss(left);
+          if (left <= 0) { huyChuanBi(); batDau(); } }, 1000);
+      };
+    }
     bStop.onclick = () => { if (S.bt.rec) S.bt.rec.stop(); };
     bRedo.onclick = () => { if (confirm('Xoá bản ghi này và ghi lại?')) { st.blob = null; mode('cho'); capNhatTienDo(); batDau(); } };
     bUp.onclick = () => up.click();
@@ -929,11 +997,17 @@ const DUNG = {
       const f = up.files[0]; if (!f) return;
       st.blob = f; st.mime = f.type || 'audio/mpeg'; st.sec = 0; au.src = URL.createObjectURL(f);
       au.onloadedmetadata = () => { if (isFinite(au.duration)) st.sec = Math.round(au.duration); };
-      mode('xong'); capNhatTienDo();
+      huyChuanBi(); mode('xong'); capNhatTienDo();
     };
-    box.append(t, bRec, bUp, bStop, bRedo, au, up);
-    card.appendChild(box); mode('cho');
+    box.append(t);
+    if (bPrep) box.append(bPrep);
+    box.append(bRec, bUp, bStop, bRedo, au, up);
+    card.appendChild(box);
+    if (notes) card.appendChild(notes);
+    mode('cho');
+    if (bPrep) bPrep.hidden = false;
     return { st: st, lay: () => null, daLam: () => !!st.blob,
+      dung: () => huyChuanBi(),
       hienKQ: () => { [bRec, bStop, bRedo, bUp].forEach(b => b.hidden = true); } };
   },
 };
@@ -942,7 +1016,8 @@ $('bSubmit').onclick = async () => {
   if (S.bt.rec) { toast('Em dừng phần ghi âm đang chạy trước đã nhé.'); return; }
   const ui = S.bt.ui;
   const thieu = ui.filter(u => u && !u.daLam()).length;
-  if (!confirm(thieu ? 'Còn ' + thieu + ' câu chưa làm xong. Vẫn nộp bài?' : 'Nộp bài? Sau khi nộp sẽ hiện đáp án.')) return;
+  const donVi = S.bt.kieu === 'speakFull' ? ' Part chưa ghi âm' : ' câu chưa làm xong';
+  if (!confirm(thieu ? 'Còn ' + thieu + donVi + '. Vẫn nộp bài?' : (S.bt.kieu === 'speakFull' ? 'Nộp bài nói?' : 'Nộp bài? Sau khi nộp sẽ hiện đáp án.'))) return;
   const answers = ui.map(u => (u ? u.lay() : null));
   $('bSubmit').disabled = true;
   try {
@@ -951,8 +1026,16 @@ $('bSubmit').onclick = async () => {
       const [u, i] = ghiAm[k];
       if (u.st.blob.size > FILE_TOI_DA_MB * 1024 * 1024) throw new Error('File ghi âm câu ' + (k + 1) + ' quá lớn.');
       busy('Đang tải ghi âm ' + (k + 1) + '/' + ghiAm.length + '…');
-      if (!u.st.url) u.st.url = (await call('uploadAudio', S.ma, S.pin, S.bt.maDe, i, await toBase64(u.st.blob), u.st.mime)).url;
+      if (!u.st.url) u.st.url = (await call(S.bt.kieu === 'speakFull' ? 'uploadAudioDe' : 'uploadAudio',
+        S.ma, S.pin, S.bt.maDe, i, await toBase64(u.st.blob), u.st.mime)).url;
       answers[i] = { url: u.st.url, sec: u.st.sec };
+    }
+    if (S.bt.kieu === 'speakFull') {
+      busy('Đang lưu bài nói…');
+      const r = await call('submitSpeakingFull', S.ma, S.pin, S.bt.maDe, answers, Math.round((Date.now() - S.bt.start) / 1000));
+      S.bt.xong = true; S.daNop[S.bt.maDe] = r.ketQua; roiBaiTap();
+      done('Bài nói ' + S.bt.maDe + ' đã về tới chỗ thầy. Thầy nghe xong sẽ gửi nhận xét cho em nhé!');
+      return;
     }
     busy('Đang chấm bài…');
     const r = await call('submitBaiTap', S.ma, S.pin, S.bt.maDe, answers, Math.round((Date.now() - S.bt.start) / 1000));
@@ -997,6 +1080,7 @@ function hienKetQua(r) {
 }
 
 function roiBaiTap() {
+  if (S.bt) S.bt.ui.forEach(u => { if (u && u.dung) u.dung(); });
   if (S.bt && S.bt.rec) { S.bt.rec._huy = true; S.bt.rec.stop(); }
   stopStream();
 }
