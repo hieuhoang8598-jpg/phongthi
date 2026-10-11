@@ -12,6 +12,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=Darker+Grotesque:wght@700;800;900&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
 <style>
+
 /* Layout: app shell — top bar + one screen at a time (Đăng nhập → Chọn đề → Làm bài). Exam screen = đề bên trái, bài làm bên phải. */
 :root{
   --brand:#FF7A1A; --brand-ink:#8A3A00; --brand-soft:#FFE3CF; --on-brand:#141414;
@@ -347,6 +348,129 @@ select.input.wrong{border-color:var(--bad);background:var(--bad-soft)}
   .list{grid-template-columns:minmax(0,1fr)}
   .stat{min-width:96px;flex:1}
 }
+
+/* ================= Giữ lửa ================= */
+@keyframes chay{0%,100%{transform:scaleY(1) scaleX(1)}50%{transform:scaleY(1.06) scaleX(.97)}}
+@keyframes chay2{0%,100%{transform:scaleY(1)}50%{transform:scaleY(.93)}}
+@keyframes tan{0%{transform:translateY(0);opacity:0}25%{opacity:1}100%{transform:translateY(-46px);opacity:0}}
+.fl .ngon{transform-box:fill-box;transform-origin:50% 100%;animation:chay 1.6s ease-in-out infinite}
+.fl .ngon2{transform-box:fill-box;transform-origin:50% 100%;animation:chay2 1.2s ease-in-out infinite}
+.fl .tan{animation:tan 2.4s ease-out infinite}
+.fl .tan.b{animation-delay:.8s}.fl .tan.c{animation-delay:1.6s}
+.fl.nguoi .ngon,.fl.nguoi .ngon2{animation:none}
+@media (prefers-reduced-motion:reduce){.fl .ngon,.fl .ngon2,.fl .tan{animation:none}}
+
+/* chip trên thanh đầu */
+.lua-chip{display:inline-flex;align-items:center;gap:8px;border:0;background:var(--night);color:var(--on-night);border-radius:999px;padding:6px 14px 6px 6px;font-size:13px;font-weight:600;box-shadow:inset 0 0 0 1px var(--line)}
+.lua-chip .n{width:22px;height:22px;border-radius:50%;background:var(--brand);color:#141414;display:inline-grid;place-items:center;font-size:11px;font-weight:800}
+.lua-chip:hover{box-shadow:inset 0 0 0 1.5px var(--brand)}
+
+/* băng ngọn lửa trên trang chọn đề */
+.lua{color:#fff;border-radius:var(--r-lg);border:1px solid var(--line);overflow:hidden;transition:background .4s}
+.lua-main{display:grid;grid-template-columns:150px minmax(0,1fr) auto;gap:24px;align-items:center;padding:18px 26px 14px}
+.lua-flame{width:150px;height:150px}
+.lua-flame svg{display:block;width:100%;height:100%}
+.lua-txt{display:flex;flex-direction:column;gap:8px;min-width:0}
+.lua-eb{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.lua-eb>span{font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--brand)}
+.lua-help{border:1.5px solid rgba(255,255,255,.35);background:transparent;color:#fff;border-radius:999px;padding:3px 12px;font-size:12.5px;font-weight:600}
+.lua-help:hover{border-color:var(--brand)}
+.lua-help{white-space:nowrap}.lua-help .ngan{display:none}
+.lua h2{margin:0;font-family:var(--font-display);font-weight:900;font-size:clamp(40px,5vw,58px);line-height:.95}
+.lua-txt p{margin:0;color:#E8DED6;font-size:15px;max-width:52ch}
+.lua-bar{display:flex;align-items:center;gap:12px;max-width:520px}
+.track{flex:1;height:10px;border-radius:99px;background:rgba(255,255,255,.14);overflow:hidden}
+.track i{display:block;height:100%;width:0;border-radius:99px;background:var(--brand);transition:width .5s}
+.lua-bar span{font-size:13px;color:#BDB3AA;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lua-alert{align-self:flex-start;background:#3A2C12;color:#F2B860;border-radius:var(--r-md);padding:8px 14px;font-size:14px;font-weight:600}
+.lua-side{display:flex;flex-direction:column;gap:8px;min-width:210px}
+.lua-stat{background:rgba(255,255,255,.07);border-radius:var(--r-md);padding:8px 14px;display:flex;flex-direction:column;gap:2px}
+.lua-stat>span{font-size:12px;color:#BDB3AA;font-weight:600}
+.lua-stat b{font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1;font-variant-numeric:tabular-nums}
+.lua-stat small{font-size:12px;color:#E8DED6}
+.dots{display:flex;gap:6px;align-items:center;margin-top:2px}
+.dots i{width:24px;height:24px;border-radius:50%;border:2px solid rgba(255,255,255,.3);display:grid;place-items:center;font-style:normal;font-size:11px;font-weight:800;color:#BDB3AA}
+.dots i.co{background:var(--brand);border-color:var(--brand);color:#141414}
+.lua-more{display:flex;width:100%;align-items:center;justify-content:center;gap:8px;border:0;border-top:1px solid rgba(255,255,255,.1);background:rgba(0,0,0,.18);color:#E8DED6;font-size:13px;font-weight:600;padding:9px}
+.lua-more::after{content:"▾";transition:transform .2s}
+.lua-more[aria-expanded="true"]::after{transform:rotate(180deg)}
+.lua-more:hover{color:#fff}
+.lua-extra{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);gap:14px;padding:14px 26px 22px;background:rgba(0,0,0,.18)}
+.lua-extra .hd{display:flex;align-items:baseline;gap:4px 10px;flex-wrap:wrap;margin-bottom:10px;line-height:1.1}
+.lua-extra .hd b{font-family:var(--font-display);font-weight:900;font-size:24px}
+.lua-extra .hd span{font-size:13px;color:#BDB3AA}
+.hh-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.hh{display:flex;gap:10px;align-items:center;border-radius:var(--r-md);padding:9px 10px;background:rgba(255,255,255,.06);opacity:.6}
+.hh.co{background:rgba(255,122,26,.16);opacity:1}
+.hh i{width:30px;height:30px;flex:none;border-radius:50%;background:#5A4E44;display:grid;place-items:center;font-style:normal;font-weight:800;font-size:13px;color:#fff}
+.hh.co i{background:var(--brand);color:#141414}
+.hh b{display:block;font-size:13px;line-height:1.25}
+.hh small{display:block;font-size:11.5px;color:#BDB3AA;line-height:1.25}
+.lua-trai{background:rgba(255,255,255,.06);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:10px}
+.lua-trai .hd{margin:0}
+.lua-trai .big{display:flex;align-items:center;gap:14px}
+.lua-trai .big b{font-family:var(--font-display);font-weight:900;font-size:44px;line-height:1;color:var(--brand);font-variant-numeric:tabular-nums;white-space:nowrap}
+.lua-trai .big span{color:#E8DED6;font-size:13.5px}
+.lua-trai small{font-size:12.5px;color:#BDB3AA}
+.lua-trai .track{flex:none;height:12px}
+
+/* bảng cơ chế */
+.lua-modal{max-width:880px;max-height:calc(100vh - 32px);overflow:auto}
+.lua-modal .top{display:flex;align-items:flex-start;gap:16px}
+.lua-modal .top>div{flex:1}
+.lua-modal h3{font-size:clamp(30px,4vw,40px);line-height:1}
+.luat{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}
+.luat .col{display:flex;flex-direction:column;gap:10px}
+.luat .o{background:var(--surface-2);border-radius:var(--r-md);padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.luat .o>b{font-size:15px}
+.luat .o>span{font-size:13.5px;color:var(--ink-2)}
+.luat .r{display:flex;justify-content:space-between;gap:12px;font-size:13.5px;border-bottom:1px solid var(--line-2);padding-bottom:4px}
+.luat .r:last-child{border-bottom:0;padding-bottom:0}
+.luat .r b{white-space:nowrap}
+.caps{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px;margin-top:4px}
+.caps div{display:flex;flex-direction:column;align-items:center;text-align:center;border-radius:var(--r-sm);padding:6px 2px;background:var(--surface)}
+.caps div.nay{box-shadow:inset 0 0 0 2px var(--brand)}
+.caps svg{width:48px;height:48px}
+.caps b{font-size:11.5px;line-height:1.2}
+.caps small{font-size:10.5px;color:var(--muted)}
+.lua-note{background:var(--night);color:#fff;border-radius:var(--r-md);padding:12px 16px;font-size:13.5px}
+.lua-note b{color:var(--brand)}
+
+/* sau khi nộp */
+.lua-gain{display:flex;align-items:center;gap:16px;text-align:left;background:var(--night);color:#fff;border-radius:var(--r-lg);padding:14px 20px;width:100%}
+.lua-gain .fl{width:76px;height:76px;flex:none}
+.lua-gain .fl svg{width:100%;height:100%}
+.lua-gain .t{flex:1;min-width:0;display:flex;flex-direction:column;gap:6px}
+.lua-gain .t b{font-family:var(--font-display);font-weight:900;font-size:30px;line-height:1;color:var(--brand)}
+.lua-gain .t span{font-size:14px;color:#E8DED6}
+.lua-gain.len{box-shadow:0 0 0 3px var(--brand)}
+.score .cui{margin-top:6px;font-size:14px;color:var(--brand);font-weight:700}
+.score .cui span{color:#BDB3AA;font-weight:500}
+
+@media (max-width:860px){
+  .lua-main{grid-template-columns:110px minmax(0,1fr);gap:16px;padding:16px 18px 12px}
+  .lua-flame{width:110px;height:110px}
+  .lua-side{grid-column:1/-1;flex-direction:row;min-width:0}
+  .lua-stat{flex:1;min-width:0}
+  .lua-extra{grid-template-columns:minmax(0,1fr);padding:12px 18px 18px}
+  .luat{grid-template-columns:minmax(0,1fr)}
+}
+@media (max-width:560px){
+  .lua-chip{display:none}
+  .topbar .linkbtn{white-space:nowrap}
+  .lua-help .dai{display:none}.lua-help .ngan{display:inline}
+  .lua-trai .big{flex-direction:column;align-items:flex-start;gap:6px}
+  .lua-main{grid-template-columns:84px minmax(0,1fr)}
+  .lua-flame{width:84px;height:84px}
+  .lua-help{order:3}
+  .lua-txt p{font-size:14px}
+  .lua-stat{padding:8px 10px}
+  .lua-stat b{font-size:24px}
+  .dots i{width:20px;height:20px;font-size:10px}
+  .hh-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .caps{grid-template-columns:repeat(3,minmax(0,1fr))}
+  .lua-gain{flex-direction:column;text-align:center}
+}
 </style>
 </head>
 <body>
@@ -385,6 +509,7 @@ select.input.wrong{border-color:var(--bad);background:var(--bad-soft)}
   <header class="topbar">
     <div class="mark"><svg><use href="#logo"/></svg><div class="wm"><b>Lớp thầy Hiếu</b><small>PHÒNG LÀM BÀI</small></div></div>
     <div class="sp"></div>
+    <button class="lua-chip" id="luaChip" hidden aria-label="Ngọn lửa của em"><span class="n" id="luaChipN">1</span><span class="t" id="luaChipT"></span></button>
     <div class="who"><div class="av" id="whoAv"></div><div class="nm"><b id="whoTen"></b><span id="whoMa"></span></div></div>
     <button class="linkbtn" id="btnLogout">Đăng xuất</button>
   </header>
@@ -397,6 +522,33 @@ select.input.wrong{border-color:var(--bad);background:var(--bad-soft)}
         <div class="stat"><b id="stXong">0</b><span>bài đã nộp</span></div>
       </div>
     </div>
+    <section class="lua" id="luaBox" hidden aria-label="Ngọn lửa của em">
+      <div class="lua-main">
+        <div class="lua-flame" id="luaFlame"></div>
+        <div class="lua-txt">
+          <div class="lua-eb"><span id="luaEb"></span><button class="lua-help" id="luaHelp"><span class="dai">Cách giữ lửa hoạt động thế nào?</span><span class="ngan">Cách tính củi</span></button></div>
+          <h2 id="luaTen"></h2>
+          <p id="luaNext"></p>
+          <div class="lua-bar"><div class="track"><i id="luaBar"></i></div><span id="luaBarT"></span></div>
+          <div class="lua-alert" id="luaNguoi" hidden></div>
+        </div>
+        <div class="lua-side">
+          <div class="lua-stat"><span>Tổng củi</span><b id="luaCui">0</b><small id="luaTong"></small></div>
+          <div class="lua-stat"><span>Chuỗi giữ lửa</span><b id="luaChuoi">0 tuần</b></div>
+          <div class="lua-stat"><span>Tuần này</span><div class="dots" id="luaDots"></div><small id="luaTuanT"></small></div>
+        </div>
+      </div>
+      <button class="lua-more" id="luaMore" aria-expanded="false" aria-controls="luaExtra">Huy hiệu và lửa trại cả lớp</button>
+      <div class="lua-extra" id="luaExtra" hidden>
+        <div><div class="hd"><b>Huy hiệu</b><span id="luaHHn"></span></div><div class="hh-grid" id="luaHH"></div></div>
+        <div class="lua-trai" id="luaTrai">
+          <div class="hd"><b>Lửa trại cả lớp</b><span id="ltLop"></span></div>
+          <div class="big"><b id="ltSo"></b><span id="ltText"></span></div>
+          <div class="track"><i id="ltBar"></i></div>
+          <small id="ltGop"></small>
+        </div>
+      </div>
+    </section>
     <div class="khoa-row" id="khoaRow" hidden></div>
     <div class="tabs" role="tablist">
       <button role="tab" aria-selected="true" data-tab="hoc">Bài thầy giao<span class="n" id="nHoc">0</span></button>
@@ -474,6 +626,7 @@ select.input.wrong{border-color:var(--bad);background:var(--bad-soft)}
     <div class="eyebrow">Nộp bài thành công</div>
     <h1>Xong rồi, giỏi lắm!</h1>
     <p class="muted" style="margin:0" id="doneMsg">Bài của em đã được gửi cho thầy. Thầy chữa xong sẽ báo qua Zalo.</p>
+    <div class="lua-gain" id="doneLua" hidden></div>
     <div class="file" id="doneFile"></div>
     <button class="btn btn-dark" id="doneBack">Về danh sách đề</button>
   </div>
@@ -489,6 +642,10 @@ select.input.wrong{border-color:var(--bad);background:var(--bad-soft)}
     <div class="acts"><button class="btn btn-ghost" id="dlgNo"></button><button class="btn btn-primary" id="dlgYes"></button></div>
   </div>
 </div>
+<div class="scrim" id="luaDlg" hidden role="dialog" aria-modal="true" aria-labelledby="luaDlgT">
+  <div class="modal lua-modal" id="luaDlgBox"></div>
+</div>
+
 <div id="busy" class="busy" hidden><div><div class="spinner"></div><p id="busyMsg"></p></div></div>
 
 <script>
@@ -595,6 +752,7 @@ async function call(action, ...args) {
   if (!r.ok) throw new Error('Máy chủ lỗi (' + r.status + '). Em thử lại sau ít phút.');
   const j = await r.json();
   if (!j.ok) throw new Error(j.error);
+  if (/^submit/.test(action) && j.data && j.data.lua) { S.luaThay = { truoc: S.lua, sau: j.data.lua }; S.lua = j.data.lua; }
   return j.data;
 }
 
@@ -619,7 +777,7 @@ async function doLogin(e, tuDong) {
   try {
     const r = await call('login', ma, pin);
     store('dangnhap', JSON.stringify({ ma: ma, pin: pin }));
-    Object.assign(S, { hs: r.hs, ma: ma, pin: pin, de: r.deBai, daNop: r.daNop || {} });
+    Object.assign(S, { hs: r.hs, ma: ma, pin: pin, de: r.deBai, daNop: r.daNop || {}, lua: r.lua || null });
     const nhoKhoa = store('khoa_' + ma);
     S.khoa = r.hs.khoa.indexOf(nhoKhoa) > -1 ? nhoKhoa : r.hs.khoa[0];
     store('maHS', ma);
@@ -639,6 +797,7 @@ async function doLogin(e, tuDong) {
     S.moLai = !!d;
     renderList(); show('scr-list');
     if (d) { busy(false); openDe(d, true); }
+    else if (S.lua && !store('xemLua_' + ma)) { busy(false); moLuat(); }
     S.moLai = false;
   } catch (err) {
     if (tuDong) { store('dangnhap', null); show('scr-login'); }
@@ -692,7 +851,7 @@ function renderFilters(cua) {
   });
 }
 function renderList() {
-  renderKhoa();
+  renderKhoa(); renderLua();
   $('whoMa').textContent = S.hs.maHS + ' · ' + S.khoa;
   const cua = deCuaKhoa();
   const giao = cua.filter(d => !laPractice(d.nhom)), prac = cua.filter(d => laPractice(d.nhom));
@@ -1303,6 +1462,7 @@ function hienKetQua(r) {
   txt.firstChild.style.fontWeight = '700';
   const sub = el('div', null, r.choCham ? r.choCham + ' phần nói / viết thầy sẽ chấm sau. Xem đáp án và giải thích từng câu bên dưới.' : 'Xem đáp án và giải thích từng câu bên dưới.');
   sub.style.cssText = 'color:#BDB3AA;font-size:14px'; txt.append(sub);
+  const cuiTxt = dongCui(); if (cuiTxt) txt.append(cuiTxt);
   const sp = el('div', 'sp'); const b = el('button', 'btn btn-primary', 'Về danh sách đề'); b.onclick = veDanhSach;
   box.append(txt, sp, b);
   sc.appendChild(box);
@@ -1320,11 +1480,159 @@ async function bBack() {
   roiBaiTap(); veDanhSach();
 }
 
+
+/* ====== GIỮ LỬA ====== */
+const NEN_LUA = ['#141414', '#1C1612', '#261A12', '#33200F', '#47260C', '#5E2C08'];
+const so = n => Number(n || 0).toLocaleString('vi-VN');
+function flameSVG(l, nguoi) {
+  l = Math.max(1, Math.min(6, Number(l) || 1));
+  const k = [2.6, 2.0, 2.7, 3.6, 4.2, 4.8][l - 1], kk = nguoi ? k * 0.72 : k;
+  const by = l === 2 ? 113 : l === 3 ? 116 : l === 1 ? 150 : 156;
+  const tf = (cx, y, s) => 'translate(' + cx + ' ' + y + ') scale(' + s + ') translate(-79.5 -40)';
+  const c = nguoi ? ['#9B8E84', '#D8CCC2', '#7A6D62'] : ['#FF7A1A', '#FFC24D', '#E2531B'];
+  const P = 'M79.5 40C71 40 67 34 69 27C70 23 73 21 74 17C77 21 76 25 79 26C79 21 82 17 86 14C86 20 92 25 91 31C90 37 86 40 79.5 40Z';
+  const ng = (fill, t) => '<path d="' + P + '" fill="' + fill + '" transform="' + t + '"/>';
+  let s = '<svg viewBox="0 0 200 200" role="img" aria-label="Ngọn lửa cấp ' + l + (nguoi ? ', đang nguội' : '') + '">';
+  if (!nguoi) s += '<circle cx="100" cy="112" r="' + (30 + l * 12) + '" fill="#FF7A1A" opacity="' + (0.08 + l * 0.025) + '"/><circle cx="100" cy="112" r="' + (14 + l * 7) + '" fill="#FF7A1A" opacity="' + (0.1 + l * 0.03) + '"/>';
+  if (l >= 4) s += '<rect x="46" y="150" width="108" height="16" rx="8" fill="#5A2A10" transform="rotate(-12 100 158)"/><rect x="46" y="150" width="108" height="16" rx="8" fill="#8A3A00" transform="rotate(12 100 158)"/>';
+  if (l === 2) s += '<rect x="86" y="120" width="28" height="58" rx="4" fill="#FFF6EE"/><rect x="72" y="176" width="56" height="8" rx="4" fill="#8A3A00"/><line x1="100" y1="120" x2="100" y2="112" stroke="#141414" stroke-width="2"/>';
+  if (l === 3) s += '<polygon points="76,114 124,114 114,134 86,134" fill="#FFF6EE"/><polygon points="91,138 109,138 104,190 96,190" fill="#FFF6EE"/>';
+  const m = nguoi ? 0.7 : 1;
+  if (l >= 5) s += '<g class="ngon2">' + ng(c[2], tf(66, 156, m * (l >= 6 ? 2.6 : 2.2))) + ng(c[2], tf(134, 156, m * (l >= 6 ? 2.4 : 2.0))) + '</g>';
+  if (l >= 6) s += '<g class="ngon2">' + ng(c[0], 'translate(40 156) scale(1.5) translate(-79.5 -40)') + ng(c[0], 'translate(162 156) scale(1.6) translate(-79.5 -40)') + '</g>';
+  s += '<g class="ngon">' + ng(c[0], tf(100, by, kk)) + ng(c[1], tf(100, by - 2, kk * 0.5)) + '</g>';
+  if (l >= 5 && !nguoi) s += '<circle class="tan" cx="78" cy="70" r="2.5" fill="#FFC24D"/><circle class="tan b" cx="118" cy="62" r="2" fill="#FF9A3D"/><circle class="tan c" cx="100" cy="50" r="2.5" fill="#FFC24D"/>';
+  return s + '</svg>';
+}
+function veLua(box, l, nguoi) { box.classList.add('fl'); box.classList.toggle('nguoi', !!nguoi); box.innerHTML = flameSVG(l, nguoi); }
+function tienCap(L) {
+  const tu = L.moc[L.cap - 1], toi = L.cap < 6 ? L.moc[L.cap] : null;
+  return { tu: tu, toi: toi, pct: toi ? Math.round((L.cui - tu) / (toi - tu) * 100) : 100, con: toi ? toi - L.cui : 0, capSau: toi ? L.ten[L.cap] : '' };
+}
+function renderLua() {
+  const L = S.lua;
+  $('luaBox').hidden = $('luaChip').hidden = !L;
+  if (!L) return;
+  const t = tienCap(L);
+  $('luaChipN').textContent = L.cap; $('luaChipT').textContent = L.tenCap + ' · ' + so(L.cui) + ' củi';
+  $('luaBox').style.background = NEN_LUA[L.cap - 1];
+  veLua($('luaFlame'), L.cap, L.nguoi);
+  $('luaEb').textContent = 'Ngọn lửa của em · Cấp ' + L.cap + '/6';
+  $('luaTen').textContent = L.tenCap;
+  $('luaNext').textContent = !L.tongBai ? 'Nộp bài đầu tiên để nhóm lửa nhé. Mỗi bài em nộp là thêm củi cho ngọn lửa.'
+    : t.toi ? 'Còn ' + so(t.con) + ' củi nữa để thành ' + t.capSau + '. Mỗi bài em nộp là thêm củi cho ngọn lửa.'
+    : 'Em đã đạt cấp cao nhất. Ngọn hải đăng soi đường cho cả lớp!';
+  $('luaBar').style.width = t.pct + '%';
+  $('luaBarT').textContent = t.toi ? so(L.cui - t.tu) + '/' + so(t.toi - t.tu) : 'Tối đa';
+  $('luaNguoi').hidden = !L.nguoi;
+  $('luaNguoi').textContent = 'Lửa đang nguội vì ' + L.luat.ngayNguoi + ' ngày em chưa làm bài. Làm 1 bài để nhóm lại nhé! Củi đã tích không bị mất.';
+  $('luaCui').textContent = so(L.cui); $('luaTong').textContent = L.tongBai + ' bài được tính củi';
+  $('luaChuoi').textContent = L.chuoi + ' tuần';
+  const dots = $('luaDots'); dots.innerHTML = '';
+  for (let i = 0; i < L.moiTuan; i++) { const d = el('i', i < L.tuanNay ? 'co' : '', i < L.tuanNay ? '✓' : String(i + 1)); dots.appendChild(d); }
+  $('luaTuanT').textContent = L.tuanNay >= L.moiTuan ? 'Đã giữ lửa tuần này' : 'Còn ' + (L.moiTuan - L.tuanNay) + ' bài nữa';
+  const hh = $('luaHH'); hh.innerHTML = '';
+  L.huyHieu.forEach(h => {
+    const d = el('div', 'hh' + (h.co ? ' co' : '')); const tx = el('div');
+    tx.append(el('b', null, h.ten), el('small', null, h.moTa));
+    d.append(el('i', null, h.co ? '✓' : '·'), tx); d.title = h.co ? 'Đã mở' : 'Chưa mở'; hh.appendChild(d);
+  });
+  $('luaHHn').textContent = L.huyHieu.filter(h => h.co).length + '/' + L.huyHieu.length + ' đã mở';
+  const lt = L.lop;
+  $('luaTrai').hidden = !lt;
+  if (lt) {
+    $('ltLop').textContent = 'Lớp ' + lt.ten + ' · tuần này';
+    $('ltSo').textContent = Math.min(lt.daNop, lt.mucTieu) + '/' + lt.mucTieu;
+    $('ltText').textContent = lt.daNop >= lt.mucTieu ? 'Cả lớp đã đạt mục tiêu tuần này! ' + lt.phanThuong : 'bài cả lớp đã nộp. ' + lt.phanThuong;
+    $('ltBar').style.width = Math.min(100, Math.round(lt.daNop / lt.mucTieu * 100)) + '%';
+    $('ltGop').textContent = lt.gop ? 'Em đã góp ' + lt.gop + ' bài cho lửa trại tuần này.' : 'Em chưa góp bài nào tuần này. Nộp 1 bài là góp ngay!';
+  }
+  const mo = store('luaMo') === '1';
+  $('luaExtra').hidden = !mo; $('luaMore').setAttribute('aria-expanded', String(mo));
+}
+$('luaMore').onclick = () => { store('luaMo', $('luaExtra').hidden ? '1' : '0'); renderLua(); };
+
+function moLuat() {
+  const L = S.lua; if (!L) return;
+  const C = L.luat.cui, T = L.luat.tu, pct = x => Math.round(x * 100) + '%';
+  const b = $('luaDlgBox'); b.innerHTML = '';
+  const top = el('div', 'top'); const tt = el('div');
+  tt.append(el('div', 'eyebrow', 'Cơ chế giữ lửa'));
+  const h = el('h3', null, 'Mỗi bài em nộp là thêm củi cho ngọn lửa'); h.id = 'luaDlgT'; tt.append(h);
+  const dong = el('button', 'btn btn-primary', 'Đã hiểu'); top.append(tt, dong); b.append(top);
+
+  const o = (tieuDe) => { const d = el('div', 'o'); d.append(el('b', null, tieuDe)); return d; };
+  const r = (a, c) => { const d = el('div', 'r'); d.append(el('span', null, a), el('b', null, c)); return d; };
+  const luat = el('div', 'luat'), c1 = el('div', 'col'), c2 = el('div', 'col');
+  const o1 = o('1. Kiếm củi');
+  o1.append(r('Bài tập ngữ pháp, từ vựng', C.baiTap + ' củi'), r('Đúng từ ' + pct(L.luat.baiTapGioi) + ' trở lên', '+' + C.baiTapGioi + ' củi'),
+    r('Speaking 1 Part', C.speakingPart + ' củi'), r('Speaking Full test (mỗi Part)', C.speakingFullMoiPart + ' củi'),
+    r('Writing Task 1', C.writingTask1 + ' củi'), r('Writing Task 2', C.writingTask2 + ' củi'),
+    r('Writing Full test', (C.writingTask1 + C.writingTask2) + ' củi'), r('Bài thầy chấm tiến bộ hơn lần trước', '+' + C.tienBo + ' củi'));
+  c1.append(o1);
+  const o2 = o('2. Lên cấp');
+  o2.append(el('span', null, 'Củi tính dồn qua cả 3 khóa, đã tích thì không bao giờ bị trừ.'));
+  const caps = el('div', 'caps');
+  L.ten.forEach((t, i) => { const d = el('div', i + 1 === L.cap ? 'nay' : ''); d.innerHTML = flameSVG(i + 1, false); d.append(el('b', null, t), el('small', null, so(L.moc[i]) + ' củi')); caps.appendChild(d); });
+  o2.append(caps);
+  const o3 = o('3. Giữ lửa mỗi tuần');
+  o3.append(el('span', null, 'Nộp đủ ' + L.moiTuan + ' bài trong một tuần (thứ Hai đến Chủ Nhật) là chuỗi giữ lửa tăng 1. Tuần nào thiếu, chuỗi bắt đầu lại từ 0. ' + L.luat.ngayNguoi + ' ngày không làm bài, ngọn lửa sẽ nguội, chỉ cần 1 bài là nhóm lại.'));
+  const o4 = o('4. Làm thật, không cày');
+  o4.append(el('span', null, 'Mỗi đề tính đủ củi ở lần nộp đầu. Làm lại chỉ được một nửa, và chỉ khi điểm cao hơn lần trước. Bài tập phải đúng từ ' + pct(L.luat.baiTapToiThieu) + ', Writing phải đủ số từ (Task 1 từ ' + T['Task 1'] + ', Task 2 từ ' + T['Task 2'] + '), mỗi phần Speaking phải nói từ ' + L.luat.noiGiay + ' giây mới được tính.'));
+  c2.append(o2, o3, o4);
+  luat.append(c1, c2); b.append(luat);
+  const n = el('div', 'lua-note'); n.append(el('b', null, 'Lửa trại cả lớp: '), 'mỗi bài em nộp cũng góp vào mục tiêu chung của lớp trong tuần. ' + (L.lop ? L.lop.phanThuong : 'Cả lớp đạt mục tiêu, thầy có quà cho cả lớp.'));
+  b.append(n);
+  $('luaDlg').hidden = false;
+  const xong = () => { $('luaDlg').hidden = true; store('xemLua_' + S.ma, '1'); document.removeEventListener('keydown', esc); };
+  const esc = e => { if (e.key === 'Escape') xong(); };
+  document.addEventListener('keydown', esc);
+  dong.onclick = xong;
+  $('luaDlg').onclick = e => { if (e.target === $('luaDlg')) xong(); };
+  dong.focus();
+}
+$('luaHelp').onclick = moLuat;
+$('luaChip').onclick = moLuat;
+
+// sau khi nộp: được bao nhiêu củi, có lên cấp không
+function thayDoiCui() {
+  const x = S.luaThay; S.luaThay = null;
+  if (!x || !x.sau) return null;
+  const truoc = x.truoc || { cui: 0, cap: 1 };
+  return { them: x.sau.cui - truoc.cui, lenCap: x.sau.cap > truoc.cap, L: x.sau, lyDo: x.sau.vua && x.sau.vua.lyDo, nhomLai: truoc.nguoi && !x.sau.nguoi,
+    giuTuan: truoc.tuanNay < x.sau.moiTuan && x.sau.tuanNay >= x.sau.moiTuan };
+}
+function moTaCui(c) {
+  const t = tienCap(c.L);
+  const sau = t.toi ? 'Còn ' + so(t.con) + ' củi nữa để thành ' + t.capSau + '.' : 'Em đang ở cấp cao nhất.';
+  if (c.lenCap) return ['Lên cấp! Ngọn lửa của em đã thành ' + c.L.tenCap + '.', (c.them > 0 ? '+' + c.them + ' củi. ' : '') + sau];
+  if (c.them > 0) {
+    const them = c.giuTuan ? 'Tuần này em đã giữ được lửa! Chuỗi: ' + c.L.chuoi + ' tuần. ' : c.nhomLai ? 'Lửa đã được nhóm lại! ' : '';
+    return ['+' + c.them + ' củi', them + (c.lyDo ? c.lyDo + ' ' : '') + c.L.tenCap + ' · ' + so(c.L.cui) + ' củi. ' + sau];
+  }
+  return ['Chưa được tính củi', c.lyDo || 'Bài này chưa được tính củi.'];
+}
+function veCuiMoi(box) {
+  const c = thayDoiCui();
+  box.hidden = !c; box.innerHTML = '';
+  if (!c) return;
+  const [a, b] = moTaCui(c);
+  const f = el('div'); veLua(f, c.L.cap, c.L.nguoi);
+  const t = el('div', 't'); t.append(el('b', null, a), el('span', null, b));
+  box.append(f, t); box.classList.toggle('len', c.lenCap);
+}
+function dongCui() {
+  const c = thayDoiCui(); if (!c) return null;
+  const [a, b] = moTaCui(c);
+  const d = el('div', 'cui', a + ' '); d.append(el('span', null, b)); return d;
+}
+
 /* ====== ĐÃ NỘP ====== */
 function done(text) {
   $('doneMsg').textContent = text;
   const d = new Date();
   $('doneFile').textContent = '[' + S.cur.maDe + '] ' + S.hs.hoTen + ' - ' + S.hs.maHS + ' - ' + d.getFullYear() + '-' + hh(d.getMonth() + 1) + '-' + hh(d.getDate()) + ' ' + hh(d.getHours()) + hh(d.getMinutes());
+  veCuiMoi($('doneLua'));
   show('scr-done'); luuViTri(viTriDs());
 }
 $('doneBack').onclick = veDanhSach;
