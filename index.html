@@ -688,6 +688,12 @@ button.tl-it:hover{border-color:var(--brand)}
 .cham-bai .doc p.li{padding-left:18px;position:relative}
 .cham-bai .doc p.li::before{content:"•";position:absolute;left:4px}
 .cham-bai .doc .ga{font-family:var(--font-body);font-size:14px;line-height:1.4;margin:4px 0}
+
+.th-moi{display:block;width:100%;text-align:left;border:0;border-radius:var(--r-md);background:var(--brand);color:#141414;font-weight:700;font-size:14px;padding:12px 16px;box-shadow:var(--shadow)}
+.th-moi::before{content:"● ";animation:nhap 1.2s ease-in-out infinite}
+@keyframes nhap{50%{opacity:.3}}
+.crow.moi{border-color:var(--brand)}
+.tag-moi{display:inline-block;margin-left:8px;vertical-align:2px;background:var(--brand);color:#141414;border-radius:999px;padding:1px 8px;font-size:11px;font-weight:800}
 </style>
 </head>
 <body>
@@ -907,6 +913,7 @@ button.tl-it:hover{border-color:var(--brand)}
   <header class="topbar">
     <div class="mark"><svg><use href="#logo"/></svg><div class="wm"><b>Lớp thầy Hiếu</b><small class="thay">TRANG CHẤM BÀI</small></div></div>
     <div class="sp"></div>
+    <button class="linkbtn" id="thayBaoBtn" hidden>🔔 Bật thông báo</button>
     <button class="linkbtn" id="thayReload">Tải lại</button>
     <button class="linkbtn" id="thayOut">Đăng xuất</button>
   </header>
@@ -918,6 +925,7 @@ button.tl-it:hover{border-color:var(--brand)}
         <div class="stat"><b id="thTuan">0</b><span>chấm trong 7 ngày</span></div>
       </div>
     </div>
+    <button class="th-moi" id="thMoiBar" hidden></button>
     <div class="tabs" role="tablist" id="thTabs">
       <button role="tab" data-tab="cho" aria-selected="true">Chờ chấm<span class="n" id="thNCho">0</span></button>
       <button role="tab" data-tab="xong" aria-selected="false">Đã chấm<span class="n" id="thNXong">0</span></button>
@@ -1154,7 +1162,7 @@ async function doLogin(e, tuDong) {
 $('loginForm').addEventListener('submit', doLogin);
 $('btnLogout').onclick = $('thayOut').onclick = async () => {
   if (!await hoi({ eyebrow: 'Đăng xuất', tieuDe: vb('dx.tieuDe'), noiDung: vb('dx.noiDung'), co: 'Đăng xuất', khong: 'Ở lại' })) return;
-  store('dangnhap', null); luuViTri(null);
+  store('dangnhap', null); luuViTri(null); S.thay = false; clearTimeout(S.hoiT);
   location.reload();
 };
 
@@ -2345,8 +2353,59 @@ S.tf = { tab: 'cho', khoa: '', lop: '', q: '' };
 function vaoTrangThay(ma, pin, r) {
   Object.assign(S, { thay: true, ma: ma, pin: pin, thayBai: r.bai || [] });
   store('maHS', ma);
+  S.thayLanTruoc = Number(store('thayXem')) || 0; // bài nộp sau lần thầy vào trước → "Mới"
+  store('thayXem', String(Date.now()));
+  S.thayMoc = Math.max(Date.now() - 60000, ...S.thayBai.map(b => b.t || 0));
   renderThay(); show('scr-thay'); busy(false);
+  batDauHoiBaiMoi();
 }
+
+/* ---- báo bài mới ---- */
+const TIEU_DE_GOC = document.title;
+function batDauHoiBaiMoi() {
+  clearTimeout(S.hoiT);
+  const coBao = 'Notification' in window;
+  $('thayBaoBtn').hidden = !coBao || Notification.permission === 'granted' || Notification.permission === 'denied';
+  const hoi = async () => {
+    if (!S.thay) return;
+    try {
+      const r = await goi('thayMoi', [S.ma, S.pin, S.thayMoc]);
+      if (r.soMoi) {
+        S.thayMoc = Math.max(S.thayMoc, ...r.moi.map(x => x.t));
+        S.chuaXem = (S.chuaXem || 0) + r.soMoi;
+        const ten = r.moi.slice(0, 3).map(x => x.hoTen + ' · ' + x.loai + ' ' + (x.phan === 'Full' ? 'Full test' : x.phan)).join('\n');
+        const tieuDe = r.soMoi === 1 ? 'Có 1 bài mới cần chấm' : 'Có ' + r.soMoi + ' bài mới cần chấm';
+        toast(tieuDe + ': ' + r.moi[0].hoTen);
+        if (coBao && Notification.permission === 'granted' && document.hidden) {
+          try { const n = new Notification(tieuDe, { body: ten, icon: 'apple-touch-icon.png', tag: 'bai-moi' }); n.onclick = () => { window.focus(); n.close(); }; } catch (e) { console.error(e); }
+        }
+        if (dangO() === 'scr-thay') await taiLaiDsThay(true);
+        capNhatBaoMoi();
+      }
+    } catch (e) { console.error(e); }
+    S.hoiT = setTimeout(hoi, document.hidden ? 120000 : 60000);
+  };
+  S.hoiT = setTimeout(hoi, 60000);
+}
+function capNhatBaoMoi() {
+  const n = S.chuaXem || 0;
+  document.title = n ? '(' + n + ') Trang chấm bài · Lớp thầy Hiếu' : TIEU_DE_GOC;
+  const bar = $('thMoiBar');
+  bar.hidden = !n || dangO() !== 'scr-thay';
+  bar.textContent = n === 1 ? '1 bài mới vừa nộp, đã thêm vào danh sách Chờ chấm' : n + ' bài mới vừa nộp, đã thêm vào danh sách Chờ chấm';
+}
+$('thMoiBar').onclick = () => { S.chuaXem = 0; S.tf.tab = 'cho'; renderThay(); capNhatBaoMoi(); };
+$('thayBaoBtn').onclick = async () => {
+  try { await Notification.requestPermission(); } catch (e) { }
+  $('thayBaoBtn').hidden = Notification.permission !== 'default';
+  if (Notification.permission === 'granted') toast('Đã bật. Có bài mới, máy sẽ báo kể cả khi thầy đang ở tab khác.');
+};
+async function taiLaiDsThay(im) {
+  const r = await goi('thayDs', [S.ma, S.pin]);
+  S.thayBai = r.bai; renderThay();
+  if (!im) toast('Đã cập nhật danh sách bài');
+}
+document.addEventListener('visibilitychange', () => { if (!document.hidden && S.thay && dangO() === 'scr-thay' && S.chuaXem) capNhatBaoMoi(); });
 const truoc = t => { const n = Math.floor((Date.now() - t) / 864e5); return n <= 0 ? 'Hôm nay' : n === 1 ? 'Hôm qua' : n + ' ngày trước'; };
 function renderThay() {
   const all = S.thayBai || [], F = S.tf;
@@ -2376,6 +2435,7 @@ function renderThay() {
     const c = el('div', 'c', truoc(b.t) + ' · ' + ngayThang(b.t));
     const bd = el('div', 'bd', b.band != null ? bandTxt(b.band) : '');
     if (b.band == null) { bd.className = 'pill st-new'; bd.textContent = 'Chờ chấm'; }
+    if (b.band == null && S.thayLanTruoc && b.t > S.thayLanTruoc) { r.classList.add('moi'); a.firstChild.append(el('span', 'tag-moi', 'Mới')); }
     r.append(a, m, c, bd); r.onclick = () => moCham(b); list.append(r);
   });
 }
@@ -2385,7 +2445,7 @@ $('thLop').onchange = () => { S.tf.lop = $('thLop').value; renderThay(); };
 $('thQ').oninput = () => { S.tf.q = $('thQ').value.trim(); renderThay(); };
 $('thayReload').onclick = async () => {
   busy('Đang tải bài mới…');
-  try { const r = await call('thayDs', S.ma, S.pin); S.thayBai = r.bai; renderThay(); toast('Đã cập nhật danh sách bài'); }
+  try { await taiLaiDsThay(false); S.chuaXem = 0; capNhatBaoMoi(); }
   catch (e) { baoLoi('Chưa tải được', msg(e)); } finally { busy(false); }
 };
 
@@ -2584,7 +2644,7 @@ function veFormCham(b) {
     catch (e) { baoLoi('Chưa mở được', msg(e)); } finally { busy(false); }
   };
 }
-function chBack() { S.dangCham = null; renderThay(); show('scr-thay'); }
+function chBack() { S.dangCham = null; renderThay(); show('scr-thay'); capNhatBaoMoi(); }
 $('chBack').onclick = chBack;
 
 /* ====== ĐÃ NỘP ====== */
