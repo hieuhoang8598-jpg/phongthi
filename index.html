@@ -967,6 +967,33 @@ function hoi(o) {
 const baoLoi = (tieuDe, noiDung) => hoi({ eyebrow: 'Chưa xong', tieuDe: tieuDe, noiDung: noiDung, co: 'Đã hiểu', motNut: true });
 
 async function call(action, ...args) {
+  if (/^submit/.test(action)) return nopBai(action, args);
+  return goi(action, args);
+}
+// Nộp bài: nếu đường truyền lỗi sau khi gửi, hỏi lại máy chủ xem bài đã vào chưa
+async function nopBai(action, args) {
+  const tu = Date.now();
+  let data;
+  try { data = await goi(action, args); }
+  catch (e) {
+    if (e.loiMay !== false) {
+      for (let lan = 0; lan < 3; lan++) {
+        try {
+          await new Promise(r => setTimeout(r, lan ? 4000 : 1500));
+          const k = await goi('kiemTraNop', [args[0], args[1], args[2], tu]);
+          if (k && k.daNop) { data = { ketQua: k.ketQua, ketQuaText: k.ketQua, daNopKhongCoKQ: action === 'submitBaiTap' }; break; }
+          if (k) break;
+        } catch (e2) { console.error(e2); }
+      }
+    }
+    if (!data) throw e;
+  }
+  S.capNhatP = goi('capNhat', [args[0], args[1]]).then(r => {
+    S.luaThay = { truoc: S.lua, sau: r.lua }; S.lua = r.lua; S.tt = r.tienTrinh || S.tt; return true;
+  }).catch(e => { console.error(e); return false; });
+  return data;
+}
+async function goi(action, args) {
   if (!/^https:\/\/script\.google\.com\//.test(API_URL)) throw new Error('Thầy chưa dán link Apps Script vào API_URL.');
   let r;
   try {
@@ -974,9 +1001,7 @@ async function call(action, ...args) {
   } catch (e) { throw new Error('Không kết nối được máy chủ. Em kiểm tra mạng rồi thử lại nhé.'); }
   if (!r.ok) throw new Error('Máy chủ lỗi (' + r.status + '). Em thử lại sau ít phút.');
   const j = await r.json();
-  if (!j.ok) throw new Error(j.error);
-  if (/^submit/.test(action) && j.data && j.data.lua) { S.luaThay = { truoc: S.lua, sau: j.data.lua }; S.lua = j.data.lua; }
-  if (/^submit/.test(action) && j.data && j.data.tienTrinh) S.tt = j.data.tienTrinh;
+  if (!j.ok) { const er = new Error(j.error); er.loiMay = false; throw er; }
   return j.data;
 }
 
@@ -1660,6 +1685,7 @@ $('bSubmit').onclick = async () => {
     const r = await call('submitBaiTap', S.ma, S.pin, S.bt.maDe, answers, elapsed());
     S.bt.xong = true; store(btKey(), null); S.daNop[S.bt.maDe] = r.ketQuaText || 'Đã nộp';
     stopTimer(); xoaBatDau(S.bt.maDe); luuViTri(viTriDs());
+    if (r.daNopKhongCoKQ) { roiBaiTap(); done('Bài của em đã được nộp (' + r.ketQuaText + '). Mạng chập chờn nên chưa hiện được đáp án, em mở lại đề và bấm Làm lại nếu muốn xem đáp án nhé.'); return; }
     hienKetQua(r);
   } catch (e) {
     baoLoi('Chưa nộp được', msg(e) + '\nBài vẫn còn nguyên, em bấm Nộp bài lần nữa nhé.');
@@ -1839,6 +1865,15 @@ function moTaCui(c) {
   return ['Chưa được tính củi', c.lyDo || 'Bài này chưa được tính củi.'];
 }
 function veCuiMoi(box) {
+  if (S.capNhatP) {
+    const p = S.capNhatP; S.capNhatP = null;
+    box.hidden = false; box.classList.remove('len'); box.innerHTML = '';
+    const f = el('div'); if (S.lua) veLua(f, S.lua.cap, false);
+    const t = el('div', 't'); t.append(el('b', null, 'Đang thêm củi…'), el('span', null, 'Ngọn lửa của em đang được cập nhật.'));
+    box.append(f, t);
+    p.then(ok => { if (ok) veCuiMoi(box); else box.hidden = true; });
+    return;
+  }
   const c = thayDoiCui();
   box.hidden = !c; box.innerHTML = '';
   if (!c) return;
@@ -1848,6 +1883,12 @@ function veCuiMoi(box) {
   box.append(f, t); box.classList.toggle('len', c.lenCap);
 }
 function dongCui() {
+  if (S.capNhatP) {
+    const p = S.capNhatP; S.capNhatP = null;
+    const d = el('div', 'cui', 'Đang thêm củi…');
+    p.then(ok => { const n = ok && dongCui(); if (n) d.replaceWith(n); else d.remove(); });
+    return d;
+  }
   const c = thayDoiCui(); if (!c) return null;
   const [a, b] = moTaCui(c);
   const d = el('div', 'cui', a + ' '); d.append(el('span', null, b)); return d;
