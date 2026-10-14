@@ -2333,8 +2333,8 @@ function renderTT() {
   const LL0 = X.tuThay ? X.lua : S.lua;
   $('ttHHCard').hidden = !LL0;
   const OV = diemOverall(all); $('ttNO').textContent = OV.length ? bandTxt(OV.at(-1).band) : '–';
-  if (X.loai === 'Overall') { $('ttTitle').textContent = X.tuThay ? X.ten : 'Band Overall'; if (!X.tuThay) $('ttSub').textContent = 'Overall = trung bình band gần nhất của 4 kỹ năng, làm tròn kiểu IELTS.'; veHHTT(LL0); renderTTOverall(all, OV); return; }
-  if (laNL(X.loai)) { if (!X.tuThay) $('ttSub').textContent = 'Bài nghe / đọc được chấm ngay khi nộp. Làm full test đều đặn để thấy band đi lên.'; veHHTT(LL0); renderTTRL(cuaLoai); return; }
+  if (X.loai === 'Overall') { $('ttTitle').textContent = X.tuThay ? X.ten : 'Band Overall'; if (!X.tuThay) $('ttSub').textContent = vb('tt.moTaOV'); veHHTT(LL0); renderTTOverall(all, OV); return; }
+  if (laNL(X.loai)) { if (!X.tuThay) $('ttSub').textContent = vb('tt.moTaNL'); veHHTT(LL0); renderTTRL(cuaLoai); return; }
   $('ttTCt').textContent = 'Theo tiêu chí'; $('ttTCs').textContent = 'Lần chấm gần nhất so với lần đầu';
   // lọc theo phần
   const pf = $('ttParts'); pf.innerHTML = '';
@@ -2998,6 +2998,7 @@ window.addEventListener('beforeunload', e => {
 </div>
 
 <script>
+Object.assign(VB_GOC, {"rl.chonTieuDe": ["Nghe / Đọc · hộp chọn cách làm · tiêu đề", "Em muốn làm thế nào?"], "rl.fullTen": ["Nghe / Đọc · hộp chọn · lựa chọn Full test", "Làm full test như thi thật"], "rl.phanMoTaL": ["Nghe / Đọc · hộp chọn · mô tả luyện từng section", "Tua lại, nghe lại thoải mái · chấm và xem transcript ngay"], "rl.phanMoTaR": ["Nghe / Đọc · hộp chọn · mô tả luyện từng passage", "20 phút gợi ý cho mỗi passage · chấm và xem bằng chứng ngay"], "rl.chuaTranscript": ["Listening · cột trái trước khi nộp", "Transcript hiện sau khi em nộp bài."], "rl.hetGioFull": ["Nghe / Đọc · thông báo hết giờ full test", "Hết giờ — bài được nộp."], "rl.hetGioPhan": ["Reading · hết 20 phút luyện passage", "Hết 20 phút gợi ý — em vẫn làm tiếp được."], "rl.hetChep": ["Listening · hết 10 phút kiểm tra đáp án", "Hết 10 phút kiểm tra — bài được nộp."], "rl.hetNghe": ["Listening · khi băng full test chạy hết", "Hết bài nghe. Em có 10 phút để kiểm tra đáp án."], "rl.khongDung": ["Listening · bấm dừng khi thi thật", "Thi thật thì không dừng được băng — cứ nghe tiếp nhé."], "rl.nopThieu": ["Nghe / Đọc · hỏi khi nộp mà còn câu trống", "Câu bỏ trống sẽ tính là sai. Em vẫn muốn nộp?"], "rl.nopDu": ["Nghe / Đọc · hỏi khi nộp đủ câu", "Nộp xong em sẽ thấy điểm và đáp án ngay."], "rl.kq90": ["Nghe / Đọc · kết quả đúng từ 90%", "Xuất sắc! Giữ phong độ này nhé."], "rl.kq70": ["Nghe / Đọc · kết quả đúng 70–89%", "Tốt lắm — xem lại vài câu sai bên dưới."], "rl.kq50": ["Nghe / Đọc · kết quả đúng 50–69%", "Ổn rồi, xem kỹ phần giải thích để lên điểm."], "rl.kqThap": ["Nghe / Đọc · kết quả đúng dưới 50%", "Đừng nản — đọc giải thích từng câu rồi làm lại nhé."], "tt.moTaNL": ["Tiến trình · dòng mô tả tab Reading / Listening", "Bài nghe / đọc được chấm ngay khi nộp. Làm full test đều đặn để thấy band đi lên."], "tt.moTaOV": ["Tiến trình · dòng mô tả tab Overall", "Overall = trung bình band gần nhất của 4 kỹ năng, làm tròn kiểu IELTS."], "tt.chuaOV": ["Tiến trình · biểu đồ Overall khi chưa đủ 4 kỹ năng", "Overall sẽ hiện khi em có band đủ 4 kỹ năng: Nghe, Đọc (full test), Viết (Task 2 / Full) và Nói."]});
 /* ====== NGHE / ĐỌC ====== */
 const laNL = l => l === 'Reading' || l === 'Listening';
 const TEN_PHAN_NL = l => l === 'Listening' ? 'section' : 'passage';
@@ -3096,15 +3097,15 @@ function moChonRL(d) {
   const box = $('rlDlgBox'); box.innerHTML = '';
   const L = d.loai;
   box.append(el('div', 'eyebrow', d.maDe + ' · ' + L));
-  const h = el('h3', null, 'Em muốn làm thế nào?'); h.id = 'rlDlgT'; box.append(h);
+  const h = el('h3', null, vb('rl.chonTieuDe')); h.id = 'rlDlgT'; box.append(h);
   let chon = 'FULL';
   const opF = el('button', 'rl-op'); const icF = el('div', 'ic', String(d.soCau || 40));
-  const tF = el('div'); tF.append(el('b', null, 'Làm full test như thi thật'), el('span', null, L === 'Listening'
+  const tF = el('div'); tF.append(el('b', null, vb('rl.fullTen')), el('span', null, L === 'Listening'
     ? d.rl.phan.length + ' section · audio phát liền, không tua · 10 phút kiểm tra đáp án sau khi nghe · có band'
     : d.rl.phan.length + ' passage · 60 phút · hết giờ tự nộp · có band'));
   opF.append(icF, tF);
   const opP = el('button', 'rl-op'); const icP = el('div', 'ic', L === 'Listening' ? 'S' : 'P');
-  const tP = el('div'); tP.append(el('b', null, 'Luyện từng ' + TEN_PHAN_NL(L)), el('span', null, L === 'Listening' ? 'Tua lại, nghe lại thoải mái · chấm và xem transcript ngay' : '20 phút gợi ý cho mỗi passage · chấm và xem bằng chứng ngay'));
+  const tP = el('div'); tP.append(el('b', null, 'Luyện từng ' + TEN_PHAN_NL(L)), el('span', null, L === 'Listening' ? vb('rl.phanMoTaL') : vb('rl.phanMoTaR')));
   const ps = el('div', 'ps'); tP.append(ps); opP.append(icP, tP);
   const ve = () => {
     opF.setAttribute('aria-pressed', String(chon === 'FULL')); opP.setAttribute('aria-pressed', String(chon !== 'FULL'));
@@ -3245,7 +3246,7 @@ function veDocRL() {
     txt.classList.add('ts');
     const k = R.kq && R.kq.phan ? R.kq.phan.find(x => x.so === p.so) : null;
     if (k && k.transcript && k.transcript.length) veDoan(txt, k.transcript);
-    else txt.append(el('p', 'muted', R.mode === 'xem' ? 'Đề này chưa có transcript.' : 'Transcript hiện sau khi em nộp bài.'));
+    else txt.append(el('p', 'muted', R.mode === 'xem' ? 'Đề này chưa có transcript.' : vb('rl.chuaTranscript')));
   }
   box.append(txt);
   if (R.toCu && R.toCu[p.so]) { txt.innerHTML = R.toCu[p.so]; }
@@ -3536,7 +3537,7 @@ function rlTimer() {
     if (R.chep) { // Listening full: 10 phút kiểm tra đáp án sau khi nghe xong
       const con = 600 - (Date.now() - R.chep) / 1000;
       t.textContent = mmss(con); t.className = 'timer' + (con < 120 ? ' low' : '');
-      if (con <= 0 && !R.hetGio) { R.hetGio = true; toast('Hết 10 phút kiểm tra — bài được nộp.'); nopRL(true); }
+      if (con <= 0 && !R.hetGio) { R.hetGio = true; toast(vb('rl.hetChep')); nopRL(true); }
       return;
     }
     if (!R.tong) { t.textContent = mmss(da); t.className = 'timer'; return; }
@@ -3544,8 +3545,8 @@ function rlTimer() {
     t.textContent = mmss(Math.abs(con)); t.className = 'timer' + (con < 300 ? ' low' : '') + (con < 0 ? ' over' : '');
     if (con <= 0 && !R.hetGio) {
       R.hetGio = true;
-      if (de.kieu === 'full') { toast('Hết giờ — bài được nộp.'); nopRL(true); }
-      else toast('Hết 20 phút gợi ý — em vẫn làm tiếp được.');
+      if (de.kieu === 'full') { toast(vb('rl.hetGioFull')); nopRL(true); }
+      else toast(vb('rl.hetGioPhan'));
     }
   };
   ve(); R.tick = setInterval(ve, 1000);
@@ -3625,7 +3626,7 @@ function moPlayer() {
       return;
     }
     A.dangHet = false; A.xong = true; $('rlPlay').textContent = '↺';
-    if (full && !R.chep) { R.chep = Date.now(); $('rlSt').textContent = 'Hết bài nghe · 10 phút kiểm tra đáp án'; toast('Hết bài nghe. Em có 10 phút để kiểm tra đáp án.'); }
+    if (full && !R.chep) { R.chep = Date.now(); $('rlSt').textContent = 'Hết bài nghe · 10 phút kiểm tra đáp án'; toast(vb('rl.hetNghe')); }
     else $('rlSt').textContent = 'Hết bài nghe';
     if (A.gioiHan && A.lan >= A.gioiHan) $('rlPlay').disabled = true;
   };
@@ -3637,7 +3638,7 @@ function moPlayer() {
       if (A.el.currentTime <= (ds[A.i].tu || 0) + 0.5 && A.i === 0) { if (A.gioiHan && A.lan >= A.gioiHan) return; A.lan++; }
       A.el.play().catch(e => { $('rlSt').textContent = 'Không phát được audio: ' + msg(e); });
     } else if (!full) A.el.pause();
-    else toast('Thi thật thì không dừng được băng — cứ nghe tiếp nhé.');
+    else toast(vb('rl.khongDung'));
   };
   $('rlLui').onclick = () => { const tr = ds[A.i]; A.el.currentTime = Math.max(tr.tu || 0, A.el.currentTime - 5); };
   $('rlTr').onclick = e => {
@@ -3657,7 +3658,7 @@ async function nopRL(tuDong) {
   const all = tatCaO(), thieu = all.filter(x => !daTraLoi(x.o)).length;
   if (!tuDong) {
     if (R.de.loai === 'Listening' && R.au && R.de.kieu === 'full' && !R.au.xong && !R.chep && !await hoi({ eyebrow: 'Nộp bài', tieuDe: 'Băng chưa chạy hết', noiDung: 'Nộp bây giờ thì các câu chưa nghe sẽ bị tính sai.', co: 'Vẫn nộp', khong: 'Nghe tiếp' })) return;
-    if (!await hoi({ eyebrow: 'Nộp bài', tieuDe: thieu ? 'Còn ' + thieu + ' câu chưa làm' : 'Nộp bài nhé?', noiDung: thieu ? 'Câu bỏ trống sẽ tính là sai. Em vẫn muốn nộp?' : 'Nộp xong em sẽ thấy điểm và đáp án ngay.', co: 'Nộp bài', khong: 'Làm tiếp' })) return;
+    if (!await hoi({ eyebrow: 'Nộp bài', tieuDe: thieu ? 'Còn ' + thieu + ' câu chưa làm' : 'Nộp bài nhé?', noiDung: thieu ? vb('rl.nopThieu') : vb('rl.nopDu'), co: 'Nộp bài', khong: 'Làm tiếp' })) return;
   }
   R.dangNop = true; clearInterval(R.tick);
   const giay = Math.round((Date.now() - R.t0) / 1000);
@@ -3683,7 +3684,7 @@ function veKetQuaRL() {
   top.append(el('b', null, k.band != null ? Number(k.band).toFixed(1) : k.dung + '/' + k.tong));
   const t = el('div', 't');
   t.append(el('strong', null, k.band != null ? 'Band ' + de.loai + ' · ' + k.dung + '/' + k.tong + ' câu đúng' : Math.round(tl * 100) + '% câu đúng'),
-    el('span', null, tl >= .9 ? 'Xuất sắc! Giữ phong độ này nhé.' : tl >= .7 ? 'Tốt lắm — xem lại vài câu sai bên dưới.' : tl >= .5 ? 'Ổn rồi, xem kỹ phần giải thích để lên điểm.' : 'Đừng nản — đọc giải thích từng câu rồi làm lại nhé.'));
+    el('span', null, tl >= .9 ? vb('rl.kq90') : tl >= .7 ? vb('rl.kq70') : tl >= .5 ? vb('rl.kq50') : vb('rl.kqThap')));
   top.append(t);
   if (R.tuTT) { if (R.ngayNop) t.append(el('span', null, 'Nộp ' + ngayThang(R.ngayNop) + (R.thoiGianLam ? ' · làm ' + R.thoiGianLam : ''))); }
   else { const c = dongCui(); if (c) { const cc = el('div', 'cui'); cc.append(c); top.append(cc); } }
@@ -3782,7 +3783,7 @@ function renderTTOverall(all, OV) {
   }
   $('ttChartSub').textContent = OV.length ? 'Overall · ' + OV.length + ' mốc' : '';
   veBieuDo($('ttChart'), OV);
-  if (!OV.length) $('ttChart').firstChild.textContent = 'Overall sẽ hiện khi em có band đủ 4 kỹ năng: Nghe, Đọc (full test), Viết (Task 2 / Full) và Nói.';
+  if (!OV.length) $('ttChart').firstChild.textContent = vb('tt.chuaOV');
   // band từng kỹ năng
   $('ttTCt').textContent = 'Band từng kỹ năng'; $('ttTCs').textContent = 'Bài gần nhất của mỗi kỹ năng';
   const tc = $('ttTC'); tc.innerHTML = '';
@@ -3948,6 +3949,7 @@ function renderTTRL(cuaLoai) {
 </style>
 
 <script>
+Object.assign(VB_GOC, {"bc.nxChamChi": ["Báo cáo phụ huynh · chữ mờ gợi ý ô nhận xét chăm chỉ", "VD: Em nộp bài đều, giữ lửa 4 tuần liền. Tuần thi cử có hụt nhưng đã quay lại ngay…"], "bc.nxDiem": ["Báo cáo phụ huynh · chữ mờ ô nhận xét điểm số", "VD: Listening tăng rõ nhờ luyện chép chính tả. Writing còn yếu phần Task Response, tháng tới tập trung lập dàn ý…"], "bc.nxThi": ["Báo cáo phụ huynh · chữ mờ ô nhận xét bài thi", "VD: Bài Mid term em làm tốt phần Listening, Writing còn thiếu thời gian cho Task 2…"], "bc.nxSoSanh": ["Báo cáo phụ huynh · chữ mờ ô nhận xét so sánh", "VD: Ở nhà em làm Reading tốt nhưng vào phòng thi bị thiếu giờ, thầy sẽ cho em luyện thêm đề bấm giờ…"], "bc.nxChung": ["Báo cáo phụ huynh · chữ mờ ô lời nhắn chung", "VD: Gia đình nhắc em làm đủ 3 bài mỗi tuần, ưu tiên tối thứ 3 và thứ 6…"], "bc.thiThap": ["Báo cáo · gợi ý khi thi thấp hơn ở nhà ({kn}, {so})", "{kn}: thi thấp hơn ở nhà {so} band — có thể do áp lực thời gian / phòng thi, cần luyện thêm đề bấm giờ."], "bc.thiCao": ["Báo cáo · gợi ý khi thi cao hơn ở nhà ({kn}, {so})", "{kn}: thi cao hơn ở nhà {so} band — bài ở nhà có thể chưa làm hết sức hoặc còn ít bài."], "bc.thiSat": ["Báo cáo · gợi ý khi thi sát điểm ở nhà ({kn})", "{kn}: điểm thi sát với điểm luyện ở nhà — phong độ ổn định."], "bc.chanTrang": ["Báo cáo phụ huynh · chân trang", "Lớp thầy Hiếu · 0914.589.406 · 28/384 Lạch Tray, Hải Phòng"]});
 /* ====== BÁO CÁO PHỤ HUYNH ====== */
 MAU_PHAN.KN = { Listening: 's1', Reading: 's2', Writing: 's3', Speaking: 's4' };
 async function moBaoCao(maHS, tuDau) {
@@ -4012,7 +4014,7 @@ function veBaoCao() {
   } else s1.append(el('div', 'bc-empty', 'Chưa có dữ liệu ngọn lửa.'));
   s1.append(el('div', 'bc-sub', 'Ngày luyện tập (12 tuần gần đây)'));
   const heat = el('div', 'bc-heat'); veHeat(heat, all); s1.append(heat);
-  s1.append(oNhanXet(ma, 'chamchi', 'Nhận xét của thầy về sự chăm chỉ', 'VD: Em nộp bài đều, giữ lửa 4 tuần liền. Tuần thi cử có hụt nhưng đã quay lại ngay…'));
+  s1.append(oNhanXet(ma, 'chamchi', 'Nhận xét của thầy về sự chăm chỉ', vb('bc.nxChamChi')));
   page.append(s1);
 
   /* ---- 2. Điểm số ---- */
@@ -4045,7 +4047,7 @@ function veBaoCao() {
   const cot = (cls, ten, ds) => { const d = el('div', cls); d.append(el('b', null, ten)); const ul = el('ul'); (ds.length ? ds : ['Chưa đủ dữ liệu để kết luận.']).forEach(x => ul.append(el('li', null, x))); d.append(ul); return d; };
   g.append(cot('manh', 'Điểm mạnh', mm.manh), cot('yeu', 'Cần cải thiện', mm.yeu));
   s2.append(g);
-  s2.append(oNhanXet(ma, 'diem', 'Nhận xét của thầy về điểm số', 'VD: Listening tăng rõ nhờ luyện chép chính tả. Writing còn yếu phần Task Response, tháng tới tập trung lập dàn ý…'));
+  s2.append(oNhanXet(ma, 'diem', 'Nhận xét của thầy về điểm số', vb('bc.nxDiem')));
   page.append(s2);
 
   /* ---- 3. Điểm thi trong khóa ---- */
@@ -4055,9 +4057,9 @@ function veBaoCao() {
   /* ---- nhận xét chung ---- */
   const s3 = el('section', 'bc-sec bc-s3');
   const h3 = el('h2'); h3.append(el('i', null, '5'), ' Lời nhắn của thầy'); s3.append(h3);
-  s3.append(oNhanXet(ma, 'chung', 'Nhận xét chung và việc gia đình có thể hỗ trợ', 'VD: Gia đình nhắc em làm đủ 3 bài mỗi tuần, ưu tiên tối thứ 3 và thứ 6…'));
+  s3.append(oNhanXet(ma, 'chung', 'Nhận xét chung và việc gia đình có thể hỗ trợ', vb('bc.nxChung')));
   page.append(s3);
-  const ft = el('div', 'bc-ft'); ft.append(el('span', null, 'Lớp thầy Hiếu · 0914.589.406 · 28/384 Lạch Tray, Hải Phòng'), el('span', null, 'Báo cáo tạo ngày ' + ngayDai(Date.now())));
+  const ft = el('div', 'bc-ft'); ft.append(el('span', null, vb('bc.chanTrang')), el('span', null, 'Báo cáo tạo ngày ' + ngayDai(Date.now())));
   page.append(ft);
 }
 const KY_THI = ['Mid term', 'Final test'];
@@ -4115,7 +4117,7 @@ function veDiemThi(r, ma) {
   });
   const ft = el('div', 'bc-luu'); ft.append(el('span', null, 'Điểm tự lưu vào Sheet (trang DiemThi) mỗi khi thầy đổi. Overall tự tính khi đủ 4 kỹ năng.'), st);
   s.append(ft);
-  s.append(oNhanXet(ma, 'thi', 'Nhận xét của thầy về bài thi', 'VD: Bài Mid term em làm tốt phần Listening, Writing còn thiếu thời gian cho Task 2…'));
+  s.append(oNhanXet(ma, 'thi', 'Nhận xét của thầy về bài thi', vb('bc.nxThi')));
   return s;
 }
 /** So sánh điểm thi với điểm luyện ở nhà: trung bình 3 bài có band gần nhất trước ngày thi của từng kỹ năng */
@@ -4140,15 +4142,15 @@ function veSoSanhThi(r, ma, all) {
       const ch = t != null && n ? t - n.v : null;
       row.append(el('span', 'ch ' + (ch == null ? '' : ch >= 0.75 ? 'len' : ch <= -0.75 ? 'xuong' : ''), ch == null ? '' : (ch > 0 ? '+' : ch < 0 ? '−' : '±') + Math.abs(ch).toFixed(1)));
       box.append(row);
-      if (ch != null && ch <= -0.75) nx.push(ten + ': thi thấp hơn ở nhà ' + Math.abs(ch).toFixed(1) + ' band — có thể do áp lực thời gian / phòng thi, cần luyện thêm đề bấm giờ.');
-      else if (ch != null && ch >= 0.75) nx.push(ten + ': thi cao hơn ở nhà ' + ch.toFixed(1) + ' band — bài ở nhà có thể chưa làm hết sức hoặc còn ít bài.');
-      else if (ch != null) nx.push(ten + ': điểm thi sát với điểm luyện ở nhà — phong độ ổn định.');
+      if (ch != null && ch <= -0.75) nx.push(vb('bc.thiThap', { kn: ten, so: Math.abs(ch).toFixed(1) }));
+      else if (ch != null && ch >= 0.75) nx.push(vb('bc.thiCao', { kn: ten, so: ch.toFixed(1) }));
+      else if (ch != null) nx.push(vb('bc.thiSat', { kn: ten }));
       else if (t != null && !n) nx.push(ten + ': chưa có bài luyện ở nhà có band để so sánh.');
     });
     if (nx.length) { const ul = el('ul', 'bc-ss-nx'); nx.forEach(x => ul.append(el('li', null, x))); box.append(ul); }
     s.append(box);
   });
-  s.append(oNhanXet(ma, 'sosanh', 'Nhận xét của thầy', 'VD: Ở nhà em làm Reading tốt nhưng vào phòng thi bị thiếu giờ, thầy sẽ cho em luyện thêm đề bấm giờ…'));
+  s.append(oNhanXet(ma, 'sosanh', 'Nhận xét của thầy', vb('bc.nxSoSanh')));
   return s;
 }
 function ngayDai(t) { if (!t) return '–'; const d = new Date(t); return hh(d.getDate()) + '/' + hh(d.getMonth() + 1) + '/' + d.getFullYear(); }
