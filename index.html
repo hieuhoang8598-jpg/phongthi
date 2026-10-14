@@ -871,6 +871,9 @@ mark.rl-ev.nhay{animation:rlnhay 1.2s 2}
 .rl-body.mot .rl-doc{display:none}
 .rl-body.co-player .rl-doc{top:128px;height:calc(100vh - 128px)}
 .rl-body.co-player .rl-cau,.rl-body.co-player .rl-gap{scroll-margin-top:200px}
+
+.rl-mota{font-size:13.5px;color:var(--ink-2);background:var(--brand-soft);border-radius:10px;padding:8px 12px}
+.rl-mota b{color:var(--brand-ink)}
 .rl-wide{grid-column:1/-1}
 </style>
 </head>
@@ -2998,7 +3001,12 @@ function rlTenNhom(p, g) { return p.ten + ' · Câu ' + g.tu + (g.den > g.tu ? '
 function renderRLList(items, box) {
   const L = S.loai;
   S.rlLoc = S.rlLoc || {};
-  const loc = S.rlLoc[L] = S.rlLoc[L] || { ky: '', dang: '' };
+  const loc = S.rlLoc[L] = S.rlLoc[L] || { ky: '', dang: '', sach: '' };
+  const sachCua = d => (d.rl && d.rl.sach) || 'Sách khác';
+  const mSach = new Map(); items.forEach(d => mSach.set(sachCua(d), (mSach.get(sachCua(d)) || 0) + 1));
+  if (loc.sach && !mSach.has(loc.sach)) loc.sach = '';
+  const tatCa = items;
+  items = items.filter(d => !loc.sach || sachCua(d) === loc.sach);
   const units = [];
   items.forEach(d => (d.rl ? d.rl.phan : []).forEach(p => p.nhom.forEach(g => units.push({ d, p, g, ky: g.kyNang && g.kyNang.length ? g.kyNang : ['Chưa xếp kỹ năng'] }))));
   const dem = (ds, f) => { const m = new Map(); ds.forEach(u => f(u).forEach(k => m.set(k, (m.get(k) || 0) + 1))); return m; };
@@ -3007,20 +3015,35 @@ function renderRLList(items, box) {
   const theoKy = units.filter(u => !loc.ky || u.ky.indexOf(loc.ky) > -1);
   const mDang = dem(theoKy, u => [u.g.dang]);
   if (loc.dang && !mDang.has(loc.dang)) loc.dang = '';
+  const thuTu = {}, moTa = {};
+  items.forEach(d => { if (d.rl) { Object.assign(thuTu, d.rl.thuTuKN || {}); Object.assign(moTa, d.rl.moTaKN || {}); } });
   const f = el('div', 'rl-filters rl-wide');
+  if (mSach.size > 1 || (mSach.size === 1 && !mSach.has('Sách khác'))) {
+    const r = el('div', 'rl-frow'); r.append(el('b', null, 'Sách'));
+    [['', 'Tất cả', null]].concat([...mSach.keys()].sort((a, b) => (a === 'Sách khác') - (b === 'Sách khác') || b.localeCompare(a, 'vi', { numeric: true })).map(k => [k, k, mSach.get(k)])).forEach(([v, t, n]) => {
+      const c = el('button', 'chip', t); if (n) c.append(el('small', null, n)); c.setAttribute('aria-pressed', String(loc.sach === v)); c.onclick = () => { loc.sach = v; renderList(); }; r.append(c);
+    });
+    f.append(r);
+  }
   const hang = (ten, m, cur, dat) => {
     const r = el('div', 'rl-frow'); r.append(el('b', null, ten));
-    const cs = [['', 'Tất cả', null]].concat([...m.keys()].sort((a, b) => (a === 'Chưa xếp kỹ năng') - (b === 'Chưa xếp kỹ năng') || a.localeCompare(b, 'vi')).map(k => [k, k, m.get(k)]));
+    const vt = k => k === 'Chưa xếp kỹ năng' ? 1e9 : (thuTu[k] != null ? thuTu[k] : 1e6);
+    const cs = [['', 'Tất cả', null]].concat([...m.keys()].sort((a, b) => vt(a) - vt(b) || a.localeCompare(b, 'vi', { numeric: true })).map(k => [k, k, m.get(k)]));
     cs.forEach(([v, t, n]) => { const c = el('button', 'chip', t); if (n) c.append(el('small', null, n)); c.setAttribute('aria-pressed', String(cur === v)); c.onclick = () => { dat(v); renderList(); }; r.append(c); });
     return r;
   };
   if (mKy.size > 1 || (mKy.size === 1 && !mKy.has('Chưa xếp kỹ năng'))) f.append(hang('Kỹ năng bổ trợ', mKy, loc.ky, v => { loc.ky = v; loc.dang = ''; }));
+  if (loc.ky && moTa[loc.ky]) { const p = el('div', 'rl-mota'); p.append(el('b', null, loc.ky + ': '), moTa[loc.ky]); f.append(p); }
   f.append(hang('Dạng bài', mDang, loc.dang, v => { loc.dang = v; }));
   box.append(f);
-  if (!items.length) { box.append(el('div', 'empty', 'Chưa có đề ' + L + ' nào.')); return; }
-  if (!loc.ky && !loc.dang) { // từng bộ đề: Full test + từng phần
-    const g = el('div', 'grp rl-wide'); g.append(el('h4', null, L + ' · bộ đề'), el('small', null, items.length + ' đề · bấm vào phần muốn làm')); box.append(g);
-    items.slice().sort((a, b) => a.maDe.localeCompare(b.maDe, undefined, { numeric: true })).forEach(d => box.append(theDeRL(d)));
+  if (!tatCa.length) { box.append(el('div', 'empty', 'Chưa có đề ' + L + ' nào.')); return; }
+  if (!loc.ky && !loc.dang) { // từng bộ đề theo sách: Full test + từng phần
+    const nhomSach = [...new Set(items.map(sachCua))].sort((a, b) => (a === 'Sách khác') - (b === 'Sách khác') || b.localeCompare(a, 'vi', { numeric: true }));
+    nhomSach.forEach(sa => {
+      const ds = items.filter(d => sachCua(d) === sa).sort((a, b) => (a.ten || a.maDe).localeCompare(b.ten || b.maDe, 'vi', { numeric: true }));
+      const g = el('div', 'grp rl-wide'); g.append(el('h4', null, nhomSach.length > 1 || sa !== 'Sách khác' ? sa : L + ' · bộ đề'), el('small', null, ds.length + ' đề · bấm vào phần muốn làm')); box.append(g);
+      ds.forEach(d => box.append(theDeRL(d)));
+    });
     return;
   }
   const ds = theoKy.filter(u => !loc.dang || u.g.dang === loc.dang);
