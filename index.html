@@ -1051,6 +1051,7 @@ mark.rl-ev.nhay{animation:rlnhay 1.2s 2}
       <div><div class="eyebrow" id="ttEb">Tiến trình luyện tập</div><h1 id="ttTitle">Hành trình Nói &amp; Viết</h1><p class="tt-sub" id="ttSub"></p></div>
     </div>
     <div class="tabs" role="tablist" id="ttTabs">
+      <button role="tab" data-loai="Overall" aria-selected="false">Overall<span class="n" id="ttNO">–</span></button>
       <button role="tab" data-loai="Writing" aria-selected="true">Writing<span class="n" id="ttNW">0</span></button>
       <button role="tab" data-loai="Speaking" aria-selected="false">Speaking<span class="n" id="ttNS">0</span></button>
       <button role="tab" data-loai="Reading" aria-selected="false">Reading<span class="n" id="ttNR">0</span></button>
@@ -2275,6 +2276,8 @@ function renderStrip() {
   const box = $('ttStrip'); box.innerHTML = ''; box.hidden = !ds.length;
   if (!ds.length) return;
   box.append(el('span', 'lb', 'Tiến trình'));
+  const ov = diemOverall(ds).at(-1);
+  if (ov) { const it = el('span', 'it', 'Overall '); it.append(el('b', null, bandTxt(ov.band))); box.append(it); }
   ['Writing', 'Speaking', 'Reading', 'Listening'].forEach(l => {
     const c = ds.filter(b => b.loai === l && b.band != null);
     if (!c.length) return;
@@ -2290,7 +2293,7 @@ function renderStrip() {
 $('ttStrip').onclick = $('btnTT').onclick = () => moTienTrinh({ ds: S.tt || [], ten: S.hs.hoTen, tuThay: false });
 
 function moTienTrinh(o) {
-  const dau = ['Writing', 'Speaking', 'Reading', 'Listening'].find(l => o.ds.some(b => b.loai === l)) || 'Writing';
+  const dau = diemOverall(o.ds).length ? 'Overall' : ['Writing', 'Speaking', 'Reading', 'Listening'].find(l => o.ds.some(b => b.loai === l)) || 'Writing';
   S.tx = Object.assign({ loai: dau, phan: '' }, o);
   show('scr-tien'); renderTT();
 }
@@ -2313,6 +2316,8 @@ function renderTT() {
   $('ttTitle').textContent = X.tuThay ? X.ten : laNL(X.loai) ? 'Hành trình Nghe & Đọc' : vb('tt.tieuDe');
   const LL0 = X.tuThay ? X.lua : S.lua;
   $('ttHHCard').hidden = !LL0;
+  const OV = diemOverall(all); $('ttNO').textContent = OV.length ? bandTxt(OV.at(-1).band) : '–';
+  if (X.loai === 'Overall') { $('ttTitle').textContent = X.tuThay ? X.ten : 'Band Overall'; if (!X.tuThay) $('ttSub').textContent = 'Overall = trung bình band gần nhất của 4 kỹ năng, làm tròn kiểu IELTS.'; veHHTT(LL0); renderTTOverall(all, OV); return; }
   if (laNL(X.loai)) { if (!X.tuThay) $('ttSub').textContent = 'Bài nghe / đọc được chấm ngay khi nộp. Làm full test đều đặn để thấy band đi lên.'; veHHTT(LL0); renderTTRL(cuaLoai); return; }
   $('ttTCt').textContent = 'Theo tiêu chí'; $('ttTCs').textContent = 'Lần chấm gần nhất so với lần đầu';
   // lọc theo phần
@@ -3692,6 +3697,70 @@ async function moXemRL(b) {
   busy('');
   S.rl = { d: deTheoMa(r.de.ma), de: r.de, tl: r.traLoi || {}, mode: 'xem', kq: r.kq, p: 0, co: Number(store('rl_co')) || 1, tuTT: true, tuThay: tuThay, ngayNop: r.t, thoiGianLam: r.thoiGianLam };
   moManRL();
+}
+
+/* ---------- Overall ---------- */
+const KN4 = ['Listening', 'Reading', 'Writing', 'Speaking'];
+// band đại diện của 1 bài cho từng kỹ năng: Nghe/Đọc chỉ tính Full test; Writing ưu tiên Full / Task 2; Speaking mọi phần
+function bandKyNang(b) {
+  if (b.band == null || isNaN(b.band)) return null;
+  if (laNL(b.loai)) return /^full/i.test(b.phan) ? b.band : null;
+  if (b.loai === 'Writing') return /task 1/i.test(b.phan) ? null : b.band;
+  if (b.loai === 'Speaking') return b.band;
+  return null;
+}
+/** Mỗi lần có band mới ở bất kỳ kỹ năng nào (khi đã đủ 4 kỹ năng) → 1 điểm Overall. */
+function diemOverall(ds) {
+  const moi = {}, out = [];
+  ds.filter(b => KN4.indexOf(b.loai) > -1 && bandKyNang(b) != null).slice().sort((a, b) => a.t - b.t).forEach(b => {
+    moi[b.loai] = { band: bandKyNang(b), t: b.t };
+    if (KN4.every(k => moi[k])) {
+      const tb = KN4.reduce((s, k) => s + moi[k].band, 0) / 4;
+      const p = { t: b.t, band: lamTron(tb), tb: tb, loai: 'Overall', phan: 'Overall', ky: Object.assign({}, moi), vi: b.loai,
+        chuDe: KN4.map(k => k[0] + ' ' + bandTxt(moi[k].band)).join(' · ') };
+      const cuoi = out.at(-1);
+      if (cuoi && new Date(cuoi.t).toDateString() === new Date(p.t).toDateString()) out[out.length - 1] = p; else out.push(p);
+    }
+  });
+  return out;
+}
+function renderTTOverall(all, OV) {
+  $('ttParts').innerHTML = '';
+  const st = $('ttStats'); st.innerHTML = '';
+  const moiNhat = {};
+  all.slice().sort((a, b) => a.t - b.t).forEach(b => { const v = bandKyNang(b); if (v != null && KN4.indexOf(b.loai) > -1) moiNhat[b.loai] = { band: v, t: b.t }; });
+  const o = (lb, val, sub, hot) => { const d = el('div', 'tt-stat' + (hot ? ' hot' : '')); d.append(el('span', null, lb), el('b', null, val), el('small', null, sub || '')); st.append(d); };
+  const thieu = KN4.filter(k => !moiNhat[k]);
+  if (OV.length) {
+    const c = OV.at(-1), tr = OV.length > 1 ? c.band - OV.at(-2).band : null;
+    o('Overall hiện tại', bandTxt(c.band), 'Trung bình ' + c.tb.toFixed(2) + (tr ? ' · ' + dauDelta(tr) + ' so với lần trước' : ''), true);
+    o('Cao nhất', bandTxt(Math.max(...OV.map(x => x.band))), OV.length + ' lần ghi nhận');
+    const d0 = OV[0];
+    o('Tiến bộ', OV.length > 1 ? dauDelta(c.band - d0.band) : '–', OV.length > 1 ? 'Từ ' + bandTxt(d0.band) + ' ngày ' + ngayThang(d0.t) : 'Cần thêm lần ghi nhận');
+    const yeu = KN4.slice().sort((a, b) => moiNhat[a].band - moiNhat[b].band)[0];
+    o('Kỹ năng cần kéo lên', yeu, 'Band ' + bandTxt(moiNhat[yeu].band));
+  } else {
+    o('Overall hiện tại', '–', 'Còn thiếu: ' + thieu.join(', '), true);
+    o('Cách có Overall', String(4 - thieu.length) + '/4', 'Cần band của cả 4 kỹ năng');
+  }
+  $('ttChartSub').textContent = OV.length ? 'Overall · ' + OV.length + ' mốc' : '';
+  veBieuDo($('ttChart'), OV);
+  if (!OV.length) $('ttChart').firstChild.textContent = 'Overall sẽ hiện khi em có band đủ 4 kỹ năng: Nghe, Đọc (full test), Viết (Task 2 / Full) và Nói.';
+  // band từng kỹ năng
+  $('ttTCt').textContent = 'Band từng kỹ năng'; $('ttTCs').textContent = 'Bài gần nhất của mỗi kỹ năng';
+  const tc = $('ttTC'); tc.innerHTML = '';
+  const dg = el('div', 'rl-dangs'); dg.style.cssText = 'border:0;padding:0';
+  KN4.forEach(k => {
+    const v = moiNhat[k]; const r = el('div', 'rl-dg'); const tr = el('div', 'tr'); const i = el('i'); i.style.width = (v ? v.band / 9 * 100 : 0) + '%'; tr.append(i);
+    r.append(el('span', null, k + (v ? ' · ' + ngayThang(v.t) : '')), tr, el('b', null, v ? bandTxt(v.band) : '–')); dg.append(r);
+  });
+  tc.append(dg);
+  tc.append(el('p', 'muted', 'Nghe / Đọc tính theo full test · Viết tính Task 2 hoặc Full test · Nói tính mọi phần thầy đã chấm.'));
+  tc.lastChild.style.cssText = 'font-size:12.5px;margin:10px 0 0';
+  veHeat($('ttHeat'), all);
+  const F = all.filter(b => bandKyNang(b) != null).sort((a, b) => a.t - b.t);
+  veHanhTrinh($('ttTl'), F);
+  $('ttTlSub').textContent = F.length ? 'Các bài có band · mới nhất ở trên' : '';
 }
 
 /* ---------- tiến trình Nghe / Đọc ---------- */
