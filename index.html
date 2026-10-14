@@ -2145,6 +2145,15 @@ function theHuyHieu(h, lon) {
 }
 $('luaMore').onclick = () => { store('luaMo', $('luaExtra').hidden ? '1' : '0'); renderLua(); };
 
+function cuiNLFE(L, r) {
+  const N = L.luat.nl || { phan: [[0.9, 20], [0.7, 15], [0.5, 10]], full: [[8, 60], [7, 50], [6, 40], [5, 30], [0, 20]] };
+  const p = N.phan.slice().sort((a, b) => a[0] - b[0]), f = N.full.slice().sort((a, b) => a[0] - b[0]);
+  const out = [];
+  p.forEach((x, i) => { const den = p[i + 1] ? Math.round(p[i + 1][0] * 100) - 1 + '%' : ''; out.push(r('Reading / Listening luyện lẻ · đúng ' + Math.round(x[0] * 100) + '%' + (den ? '–' + den : ' trở lên'), x[1] + ' củi')); });
+  out.push(r('Nhóm câu nhỏ (luyện theo dạng)', 'một nửa'));
+  f.forEach((x, i) => { const toi = f[i + 1] ? f[i + 1][0] : null; out.push(r('Reading / Listening Full test · band ' + (x[0] === 0 ? 'dưới ' + toi.toFixed(1) : toi ? x[0].toFixed(1) + '–' + (toi - 0.5).toFixed(1) : 'từ ' + x[0].toFixed(1)), x[1] + ' củi')); });
+  return out;
+}
 function moLuat() {
   const L = S.lua; if (!L) return;
   const C = L.luat.cui, T = L.luat.tu, pct = x => Math.round(x * 100) + '%';
@@ -2162,6 +2171,7 @@ function moLuat() {
     r('Speaking 1 Part', C.speakingPart + ' củi'), r('Speaking Full test (mỗi Part)', C.speakingFullMoiPart + ' củi'),
     r('Writing Task 1', C.writingTask1 + ' củi'), r('Writing Task 2', C.writingTask2 + ' củi'),
     r('Writing Full test', (C.writingTask1 + C.writingTask2) + ' củi'), r('Bài thầy chấm tiến bộ hơn lần trước', '+' + C.tienBo + ' củi'),
+    ...cuiNLFE(L, r),
     r('Giữ lửa trọn 1 tuần (thưởng chuỗi)', '+' + L.luat.thuongChuoi.DAU + ' → +' + L.luat.thuongChuoi.TOI_DA + ' củi'));
   c1.append(o1);
   const o2 = o('2. Lên cấp');
@@ -2179,7 +2189,7 @@ function moLuat() {
   o3.append(kh);
   o3.append(el('span', null, 'Riêng ngọn lửa: ' + L.luat.ngayNguoi + ' ngày không nộp bài thì lửa sẽ nguội (củi vẫn còn nguyên), nộp 1 bài là nhóm lại.'));
   const o4 = o('4. Làm thật, không cày');
-  o4.append(el('span', null, 'Mỗi đề tính đủ củi ở lần nộp đầu. Làm lại chỉ được một nửa, và chỉ khi điểm cao hơn lần trước. Bài tập phải đúng từ ' + pct(L.luat.baiTapToiThieu) + ', Writing phải đủ số từ (Task 1 từ ' + T['Task 1'] + ', Task 2 từ ' + T['Task 2'] + '), mỗi phần Speaking phải nói từ ' + L.luat.noiGiay + ' giây mới được tính.'));
+  o4.append(el('span', null, 'Mỗi đề tính đủ củi ở lần nộp đầu. Làm lại chỉ được một nửa, và chỉ khi điểm cao hơn lần trước. Bài tập phải đúng từ ' + pct(L.luat.baiTapToiThieu) + ', Writing phải đủ số từ (Task 1 từ ' + T['Task 1'] + ', Task 2 từ ' + T['Task 2'] + '), mỗi phần Speaking phải nói từ ' + L.luat.noiGiay + ' giây mới được tính. Reading / Listening luyện lẻ cần đúng từ 50%, Full test cần đúng từ ' + Math.round(((L.luat.nl || {}).fullToiThieu || 0.25) * 40) + '/40 câu.'));
   c2.append(o2, o3, o4);
   luat.append(c1, c2); b.append(luat);
   const o5 = o('5. Huy hiệu (' + L.huyHieu.filter(h => h.co).length + '/' + L.huyHieu.length + ' em đã mở)');
