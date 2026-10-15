@@ -1099,6 +1099,7 @@ mark.rl-ev.nhay{animation:rlnhay 1.2s 2}
     <div class="mark"><svg><use href="#logo"/></svg><div class="wm"><b>Lớp thầy Hiếu</b><small class="thay">TRANG CHẤM BÀI</small></div></div>
     <div class="sp"></div>
     <button class="linkbtn" id="thayBaoBtn" hidden>🔔 Bật thông báo</button>
+    <button class="linkbtn" id="thayLopBtn" onclick="moLopHoc()">📊 Lớp học</button>
     <button class="linkbtn" id="thayDiemThi" onclick="moNhapDiemThi()">📝 Nhập điểm thi</button>
     <button class="linkbtn" id="thayReload">Tải lại</button>
     <button class="linkbtn" id="thayOut">Đăng xuất</button>
@@ -2312,7 +2313,7 @@ function moTienTrinh(o) {
   S.tx = Object.assign({ loai: dau, phan: '' }, o);
   show('scr-tien'); renderTT();
 }
-function ttBack() { if (S.tx && S.tx.tuThay) { S.tx = null; show('scr-cham'); } else veDanhSach(); }
+function ttBack() { if (S.tx && S.tx.ve) { const v = S.tx.ve; S.tx = null; show(v); } else if (S.tx && S.tx.tuThay) { S.tx = null; show('scr-cham'); } else veDanhSach(); }
 $('ttBack').onclick = ttBack;
 $('ttTabs').onclick = e => { const b = e.target.closest('[data-loai]'); if (!b) return; S.tx.loai = b.dataset.loai; S.tx.phan = ''; renderTT(); };
 
@@ -2321,7 +2322,7 @@ function renderTT() {
   $('ttEb').textContent = X.tuThay ? 'Tiến trình học viên' : 'Tiến trình luyện tập';
   $('ttTitle').textContent = X.tuThay ? X.ten : vb('tt.tieuDe');
   $('ttSub').textContent = X.tuThay ? (X.maHS + (X.lop ? ' · Lớp ' + X.lop : '')) : vb('tt.moTa');
-  $('ttBack').textContent = X.tuThay ? '← Về bài đang chấm' : '← Về danh sách đề';
+  $('ttBack').textContent = X.ve === 'scr-lop' ? '← Về lớp học' : X.tuThay ? '← Về bài đang chấm' : '← Về danh sách đề';
   $('ttBC').hidden = !X.tuThay; $('ttBC').onclick = () => moBaoCao(X.maHS, 'scr-tien');
   $('ttNW').textContent = all.filter(b => b.loai === 'Writing').length;
   $('ttNS').textContent = all.filter(b => b.loai === 'Speaking').length;
@@ -4345,6 +4346,332 @@ async function thiBack() {
 }
 $('thiBack').onclick = thiBack;
 BACK['scr-thi'] = thiBack;
+</script>
+
+<!-- ============ LỚP HỌC (thầy) ============ -->
+<section id="scr-lop" class="screen" hidden>
+  <header class="topbar">
+    <div class="mark"><svg><use href="#logo"/></svg><div class="wm"><b>Lớp thầy Hiếu</b><small class="thay">TRANG CỦA THẦY</small></div></div>
+    <div class="sp"></div>
+    <button class="linkbtn" id="lopBack">← Danh sách bài</button>
+  </header>
+  <main class="wrap" id="lopMain"></main>
+</section>
+
+<style>
+.lp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:14px}
+.lp-card{text-align:left;border:1.5px solid var(--line);background:var(--surface);border-radius:var(--r-lg);padding:16px 18px;display:flex;flex-direction:column;gap:12px;box-shadow:var(--shadow);min-width:0}
+.lp-card:hover{border-color:var(--brand)}
+.lp-card .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.lp-card h3{font-size:30px;font-weight:900}
+.lp-card .sub{font-size:12.5px;color:var(--muted)}
+.lp-card .tuan{font-size:12px;font-weight:700;background:var(--line-2);border-radius:999px;padding:3px 10px;white-space:nowrap}
+.lp-bar{display:grid;grid-template-columns:110px 1fr 46px;gap:8px;align-items:center;font-size:12.5px}
+.lp-bar .tr{height:8px;border-radius:9px;background:var(--line-2);overflow:hidden}
+.lp-bar .tr i{display:block;height:100%;border-radius:9px;background:var(--chart-line)}
+.lp-bar b{text-align:right;font-variant-numeric:tabular-nums}
+.lp-nums{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.lp-nums div{background:var(--surface-2);border-radius:10px;padding:8px 10px}
+.lp-nums span{display:block;font-size:11.5px;color:var(--muted);font-weight:600}
+.lp-nums b{font-family:var(--font-display);font-size:24px;font-weight:900;line-height:1.1}
+.lp-canh{font-size:12.5px;color:var(--bad);font-weight:700;background:var(--bad-soft);border-radius:10px;padding:6px 10px}
+.lp-canh.ok{color:var(--ok);background:var(--ok-soft)}
+.lp-trai{font-size:12px;font-weight:700}
+.lp-trai.dat{color:var(--ok)} .lp-trai.chua{color:var(--warn)}
+.lp-hd{display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap}
+.lp-hd h1{font-size:clamp(40px,5vw,60px);font-weight:900}
+.lp-hd .acts{display:flex;gap:8px;flex-wrap:wrap}
+.lp-stats{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:10px}
+.lp-tw{overflow:auto;border:1px solid var(--line);border-radius:var(--r-md)}
+.lp-tb{width:100%;border-collapse:collapse;font-size:13.5px;min-width:880px}
+.lp-tb th{position:sticky;top:0;background:var(--surface-2);font-size:11.5px;color:var(--muted);text-align:left;padding:9px 10px;border-bottom:1px solid var(--line);white-space:nowrap;cursor:pointer;user-select:none}
+.lp-tb th.so,.lp-tb td.so{text-align:center}
+.lp-tb th[aria-sort]::after{content:" ▾";color:var(--brand)}
+.lp-tb th[aria-sort=ascending]::after{content:" ▴"}
+.lp-tb td{padding:8px 10px;border-bottom:1px solid var(--line-2);white-space:nowrap;font-variant-numeric:tabular-nums}
+.lp-tb tr:hover td{background:var(--surface-2)}
+.lp-tb td.ten b{display:block;cursor:pointer}
+.lp-tb td.ten b:hover{color:var(--brand-ink);text-decoration:underline}
+.lp-tb td.ten small{color:var(--muted)}
+.lp-tb .bd{font-weight:800}
+.lp-tb .bd.mo{color:var(--muted);font-weight:500}
+.lp-tb .ov{font-family:var(--font-display);font-size:20px;font-weight:900;color:var(--brand)}
+.lp-co{display:inline-flex;gap:3px}
+.lp-co i{font-style:normal;font-size:11px;font-weight:800;border-radius:999px;padding:1px 7px}
+.lp-co .nguoi{background:var(--bad-soft);color:var(--bad)}
+.lp-co .chua{background:var(--warn-soft);color:var(--warn)}
+.lp-co .tut{background:var(--bad-soft);color:var(--bad)}
+.lp-co .tot{background:var(--ok-soft);color:var(--ok)}
+.lp-mt{border-collapse:separate;border-spacing:3px;font-size:12px}
+.lp-mt th{font-size:11px;color:var(--muted);font-weight:700;padding:2px 4px;white-space:nowrap}
+.lp-mt th.de{writing-mode:vertical-rl;transform:rotate(180deg);height:130px;max-height:130px;overflow:hidden;text-overflow:ellipsis;text-align:left;vertical-align:bottom}
+.lp-mt td.nm{white-space:nowrap;padding-right:8px;font-weight:600}
+.lp-mt td.o{width:30px;height:24px;border-radius:5px;text-align:center;font-size:10.5px;font-weight:800;background:var(--line-2);color:transparent}
+.lp-mt td.o.c1{background:#FFD9BD;color:#8A3A00}
+.lp-mt td.o.c2{background:#FF9A3D;color:#141414}
+.lp-mt td.o.c3{background:#E2531B;color:#fff}
+.lp-mt td.o.cho{background:var(--warn-soft);color:var(--warn)}
+.lp-mt tfoot td{font-size:10.5px;color:var(--muted);text-align:center;font-weight:700}
+.lp-lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--ink-2)}
+.lp-lg span{display:inline-flex;align-items:center;gap:6px}
+.lp-lg i{width:12px;height:12px;border-radius:3px;display:inline-block}
+.lp-chart svg{width:100%;height:auto;display:block}
+.lp-chart .grid line{stroke:var(--line-2)}
+.lp-chart .ax text{font-size:11px;fill:var(--muted)}
+.lp-chart rect.c{fill:var(--chart-line);opacity:.85}
+.lp-chart path.ln{fill:none;stroke:var(--s2);stroke-width:2.5}
+.lp-chart circle.p{fill:var(--s2);stroke:var(--surface);stroke-width:2}
+.lp-chart text.v{font-size:11px;font-weight:800;fill:var(--ink)}
+.lp-thi{display:grid;grid-template-columns:90px 1fr 1fr 60px;gap:6px 12px;align-items:center;font-size:13.5px}
+.lp-thi .h{font-size:11.5px;color:var(--muted);font-weight:700}
+.lp-thi .b{display:grid;grid-template-columns:1fr 32px;gap:6px;align-items:center}
+.lp-thi .b i{display:block;height:9px;border-radius:9px}
+.lp-thi .b.mid i{background:var(--s2)} .lp-thi .b.fin i{background:var(--chart-line)}
+.lp-thi .b b{font-size:12.5px;text-align:right}
+@media (max-width:860px){ .lp-stats{grid-template-columns:repeat(2,minmax(0,1fr))} }
+@media print{
+  body>*:not(#scr-lop){display:none!important}
+  #scr-lop .topbar,#scr-lop .lp-hd .acts{display:none!important}
+  #scr-lop .lp-tw{overflow:visible}
+  #scr-lop .lp-tb{min-width:0;font-size:11px}
+  #scr-lop .tt-card{break-inside:avoid-page}
+  @page{size:A4 landscape;margin:10mm}
+  body *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+</style>
+
+<script>
+/* ====== LỚP HỌC (thầy) ====== */
+const KN_LOP = [['L', 'Listening'], ['R', 'Reading'], ['W', 'Writing'], ['S', 'Speaking']];
+const TUAN_MS = 7 * 864e5;
+async function moLopHoc(data) {
+  if (!data) {
+    busy('Đang tổng hợp số liệu các lớp…');
+    try { data = await call('thayLop', S.ma, S.pin); }
+    catch (e) { busy(''); baoLoi('Chưa mở được', msg(e)); return; }
+    busy('');
+  }
+  const chon = S.lop && S.lop.chon, tab = S.lop && S.lop.tab;
+  S.lop = { data: data, tab: tab || 'chay', chon: chon || null, sx: { k: 'canhBao', huong: -1 } };
+  show('scr-lop'); veLopDs();
+}
+async function moTTHocVien(maHS) {
+  busy('Đang mở tiến trình…');
+  try { const r = await call('thayTienTrinh', S.ma, S.pin, maHS); moTienTrinh({ ds: r.tienTrinh, ten: r.hoTen, maHS: r.maHS, lop: r.lop, tuThay: true, lua: r.lua, ve: 'scr-lop' }); }
+  catch (e) { baoLoi('Chưa mở được', msg(e)); } finally { busy(''); }
+}
+$('lopBack').onclick = () => { if (S.lop && S.lop.chon) { S.lop.chon = null; veLopDs(); window.scrollTo(0, 0); } else { S.lop = null; renderThay(); show('scr-thay'); } };
+BACK['scr-lop'] = () => $('lopBack').click();
+
+/** Số liệu tổng hợp của 1 lớp (tính ở máy thầy từ dữ liệu thô) */
+function tinhLop(L) {
+  const now = L.trangThai === 'Đã kết thúc' ? L.ketThuc : Date.now();
+  const tuanNay = Math.floor((now - L.batDau) / TUAN_MS);
+  const soTuan = Math.max(1, Math.ceil((L.ketThuc - L.batDau) / TUAN_MS));
+  const hs = L.hs.map(h => {
+    const daGiao = L.giao.filter(g => h.bai.some(b => b.maDe === g.maDe)).length;
+    const nopTuanNay = h.bai.filter(b => Math.floor((b.t - L.batDau) / TUAN_MS) === tuanNay).length;
+    const ov = h.band.L != null && h.band.R != null && h.band.W != null && h.band.S != null ? lamTron((h.band.L + h.band.R + h.band.W + h.band.S) / 4) : null;
+    const tut = h.bandTruoc && h.band.O != null && h.bandTruoc > h.band.O;
+    const co = [];
+    if (h.lua.nguoi) co.push(['nguoi', '🔥 Nguội']);
+    if (!nopTuanNay && L.trangThai !== 'Đã kết thúc') co.push(['chua', '⏰ Chưa nộp']);
+    if (tut) co.push(['tut', '↓ Tụt band']);
+    if (!co.length && daGiao === L.giao.length) co.push(['tot', '✓ Đủ bài']);
+    return Object.assign({}, h, { daGiao, nopTuanNay, ov: ov, tongBai: h.bai.length, co, canhBao: co.filter(c => c[0] !== 'tot').length, lanCuoi: h.bai.length ? Math.max(...h.bai.map(b => b.t)) : 0 });
+  });
+  const tb = a => { const v = a.filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+  const tuan = []; for (let w = 0; w <= Math.min(tuanNay, soTuan - 1); w++) {
+    const nopW = hs.reduce((s, h) => s + h.bai.filter(b => Math.floor((b.t - L.batDau) / TUAN_MS) === w).length, 0);
+    const tg = hs.filter(h => h.bai.some(b => Math.floor((b.t - L.batDau) / TUAN_MS) === w)).length;
+    tuan.push({ w, nop: nopW, tg: hs.length ? tg / hs.length : 0 });
+  }
+  const tongGiao = L.giao.length * hs.length;
+  return {
+    L, hs, tuanNay: Math.min(tuanNay + 1, soTuan), soTuan, tuan,
+    hoanThanh: tongGiao ? hs.reduce((s, h) => s + h.daGiao, 0) / tongGiao : 0,
+    thamGiaTuan: hs.length ? hs.filter(h => h.nopTuanNay).length : 0,
+    cuiTB: tb(hs.map(h => h.lua.cui)), ovTB: tb(hs.map(h => h.ov)), ovDauTB: tb(hs.map(h => h.ovDau)),
+    knTB: Object.fromEntries(KN_LOP.map(([k]) => [k, tb(hs.map(h => h.band[k]))])),
+    nguoi: hs.filter(h => h.lua.nguoi).length, chuaNop: hs.filter(h => !h.nopTuanNay).length,
+    baiTuan: tb(tuan.map(t => t.nop)),
+  };
+}
+
+/* ---------- tầng 1: danh sách lớp ---------- */
+function veLopDs() {
+  const X = S.lop, m = $('lopMain'); m.innerHTML = '';
+  if (X.chon) return veLopChiTiet();
+  const hd = el('div', 'hello'); const h = el('div'); h.append(el('div', 'eyebrow', 'Trang của thầy'), el('h1', null, 'Lớp học')); hd.append(h); m.append(hd);
+  const chay = X.data.lop.filter(l => l.trangThai !== 'Đã kết thúc'), xong = X.data.lop.filter(l => l.trangThai === 'Đã kết thúc');
+  const tabs = el('div', 'tabs');
+  [['chay', 'Đang chạy', chay.length], ['xong', 'Đã kết thúc', xong.length]].forEach(([k, t, n]) => {
+    const b = el('button', null, t); b.append(el('span', 'n', String(n))); b.setAttribute('aria-selected', String(X.tab === k));
+    b.onclick = () => { X.tab = k; veLopDs(); }; tabs.append(b);
+  });
+  m.append(tabs);
+  const g = el('div', 'lp-grid');
+  const ds = (X.tab === 'chay' ? chay : xong).map(tinhLop).sort((a, b) => (b.nguoi + b.chuaNop) - (a.nguoi + a.chuaNop));
+  if (!ds.length) g.append(el('div', 'empty', X.tab === 'chay' ? 'Chưa có lớp nào đang chạy.' : 'Chưa có lớp nào kết thúc.'));
+  ds.forEach(T => {
+    const L = T.L, c = el('button', 'lp-card');
+    const top = el('div', 'top'); const t = el('div'); t.append(el('h3', null, L.ten), el('div', 'sub', L.khoa + ' · ' + L.hs.length + ' học viên · ' + ngayThang(L.batDau) + ' → ' + ngayThang(L.ketThuc)));
+    top.append(t, el('span', 'tuan', L.trangThai === 'Đã kết thúc' ? 'Đã kết thúc' : 'Tuần ' + T.tuanNay + '/' + T.soTuan)); c.append(top);
+    const bar = (lb, v, txt) => { const r = el('div', 'lp-bar'); const tr = el('div', 'tr'); const i = el('i'); i.style.width = Math.round(v * 100) + '%'; tr.append(i); r.append(el('span', null, lb), tr, el('b', null, txt)); return r; };
+    c.append(bar('Hoàn thành bài giao', T.hoanThanh, Math.round(T.hoanThanh * 100) + '%'));
+    if (L.trangThai !== 'Đã kết thúc') c.append(bar('Nộp bài tuần này', T.thamGiaTuan / L.hs.length, T.thamGiaTuan + '/' + L.hs.length));
+    const n = el('div', 'lp-nums');
+    const o = (lb, v) => { const d = el('div'); d.append(el('span', null, lb), el('b', null, v)); n.append(d); };
+    o('Củi TB', T.cuiTB == null ? '–' : so(Math.round(T.cuiTB))); o('Overall TB', T.ovTB == null ? '–' : T.ovTB.toFixed(1)); o('Bài / tuần', T.baiTuan == null ? '–' : T.baiTuan.toFixed(0));
+    c.append(n);
+    if (L.trangThai !== 'Đã kết thúc') {
+      const tr = el('div', 'lp-trai ' + (L.luaTrai && L.luaTrai.dat ? 'dat' : 'chua'), L.luaTrai ? (L.luaTrai.dat ? '🔥 Lửa trại tuần này đã đạt' : '🔥 Lửa trại: ' + L.luaTrai.daNop + '/' + L.luaTrai.mucTieu + ' bài · ' + L.luaTrai.thamGia + '/' + L.hs.length + ' bạn góp lửa') : '');
+      c.append(tr);
+      const cb = [];
+      if (T.nguoi) cb.push(T.nguoi + ' em nguội lửa'); if (T.chuaNop) cb.push(T.chuaNop + ' em chưa nộp tuần này'); if (L.choCham) cb.push(L.choCham + ' bài chờ chấm');
+      c.append(el('div', 'lp-canh' + (cb.length ? '' : ' ok'), cb.length ? '⚠ ' + cb.join(' · ') : '✓ Lớp đang ổn'));
+    } else {
+      const ovd = T.ovDauTB != null && T.ovTB != null ? T.ovTB - T.ovDauTB : null;
+      c.append(el('div', 'lp-canh ok', 'Kết thúc ' + ngayDai(L.ketThuc) + (ovd != null ? ' · Overall lớp ' + T.ovDauTB.toFixed(1) + ' → ' + T.ovTB.toFixed(1) + ' (' + dauDelta(Math.round(ovd * 10) / 10) + ')' : '')));
+    }
+    c.onclick = () => { X.chon = L.ten; veLopDs(); window.scrollTo(0, 0); };
+    g.append(c);
+  });
+  m.append(g);
+}
+
+/* ---------- tầng 2: chi tiết lớp ---------- */
+function veLopChiTiet() {
+  const X = S.lop, m = $('lopMain');
+  const L = X.data.lop.find(l => l.ten === X.chon), T = tinhLop(L);
+  X.daXong = L.trangThai === 'Đã kết thúc';
+  const hd = el('div', 'lp-hd'); const t = el('div');
+  t.append(el('div', 'eyebrow', L.khoa + ' · ' + (L.trangThai === 'Đã kết thúc' ? 'Đã kết thúc ' + ngayDai(L.ketThuc) : 'Tuần ' + T.tuanNay + '/' + T.soTuan)), el('h1', null, 'Lớp ' + L.ten),
+    el('p', 'tt-sub', L.hs.length + ' học viên · ' + ngayDai(L.batDau) + ' → ' + ngayDai(L.ketThuc)));
+  const acts = el('div', 'acts');
+  const nIn = el('button', 'btn btn-ghost', '📄 Xuất báo cáo cả lớp'); nIn.onclick = () => window.print(); acts.append(nIn);
+  if (L.trangThai !== 'Đã kết thúc') {
+    const nKt = el('button', 'btn btn-dark', 'Kết thúc lớp');
+    nKt.onclick = async () => {
+      if (!await hoi({ eyebrow: 'Lớp ' + L.ten, tieuDe: 'Kết thúc lớp này?', noiDung: 'Lớp chuyển sang tab "Đã kết thúc", số liệu vẫn giữ nguyên để xem lại. Học viên vẫn đăng nhập và luyện tập bình thường.', co: 'Kết thúc lớp', khong: 'Thôi' })) return;
+      busy('Đang lưu…');
+      try { const d = await call('thayKetThucLop', S.ma, S.pin, L.ten); S.lop.data = d; S.lop.tab = 'xong'; veLopDs(); toast('Đã kết thúc lớp ' + L.ten); }
+      catch (e) { baoLoi('Chưa lưu được', msg(e)); } finally { busy(''); }
+    };
+    acts.append(nKt);
+  }
+  hd.append(t, acts); m.append(hd);
+  // a. số liệu chính
+  const st = el('div', 'lp-stats');
+  const o = (lb, v, sub, hot) => { const d = el('div', 'tt-stat' + (hot ? ' hot' : '')); d.append(el('span', null, lb), el('b', null, v)); const s = el('small'); if (sub instanceof Node) s.append(sub); else s.textContent = sub || ''; d.append(s); st.append(d); };
+  o('Hoàn thành bài giao', Math.round(T.hoanThanh * 100) + '%', L.giao.length + ' bài về nhà × ' + L.hs.length + ' em', true);
+  o('Bài nộp / tuần', T.baiTuan == null ? '–' : T.baiTuan.toFixed(0), 'trung bình cả lớp');
+  o('Củi trung bình', T.cuiTB == null ? '–' : so(Math.round(T.cuiTB)), 'mỗi học viên');
+  const sp = el('span'); if (T.ovDauTB != null && T.ovTB != null) { sp.append('đầu khóa ' + T.ovDauTB.toFixed(1) + ' '); const d = Math.round((T.ovTB - T.ovDauTB) * 10) / 10; sp.append(el('span', d > 0 ? 'len' : d < 0 ? 'xuong' : '', dauDelta(d))); }
+  o('Overall trung bình', T.ovTB == null ? '–' : T.ovTB.toFixed(1), sp);
+  o('Bài chờ chấm', String(L.choCham || 0), L.choCham ? 'Writing / Speaking' : 'Đã chấm hết');
+  m.append(st);
+  // b. biểu đồ theo tuần
+  const c1 = el('section', 'tt-card'); const h1 = el('div', 'hd'); h1.append(el('b', null, 'Nộp bài theo tuần'), el('span', null, 'Cột: số bài cả lớp nộp · Đường: % học viên có nộp' + (X.daXong ? '' : ' · * tuần đang diễn ra'))); c1.append(h1);
+  const lg = el('div', 'lp-lg'); const a1 = el('span'); const i1 = el('i'); i1.style.background = 'var(--chart-line)'; a1.append(i1, 'Số bài nộp'); const a2 = el('span'); const i2 = el('i'); i2.style.background = 'var(--s2)'; a2.append(i2, '% học viên tham gia'); lg.append(a1, a2); c1.append(lg);
+  const ch = el('div', 'lp-chart'); c1.append(ch); m.append(c1); setTimeout(() => veLopTuan(ch, T.tuan), 0);
+  // c. bảng học viên
+  const c2 = el('section', 'tt-card'); const h2 = el('div', 'hd'); h2.append(el('b', null, 'Học viên'), el('span', null, 'Bấm tiêu đề cột để sắp xếp · bấm tên để mở tiến trình')); c2.append(h2);
+  const tw = el('div', 'lp-tw'); c2.append(tw); m.append(c2); veLopBang(tw, T);
+  // d. ma trận bài giao + e. điểm thi
+  const gr = el('div', 'tt-grid');
+  const c3 = el('section', 'tt-card'); const h3 = el('div', 'hd'); h3.append(el('b', null, 'Ma trận bài giao'), el('span', null, 'Ô màu = đã làm (đậm = điểm cao) · ô xám = chưa làm')); c3.append(h3);
+  const mw = el('div'); mw.style.overflow = 'auto'; c3.append(mw); veMaTran(mw, T); gr.append(c3);
+  const c4 = el('section', 'tt-card'); const h4 = el('div', 'hd'); h4.append(el('b', null, 'Điểm thi của lớp'), el('span', null, 'Trung bình Mid term → Final test')); c4.append(h4);
+  veThiLop(c4, T); gr.append(c4);
+  m.append(gr);
+}
+function veLopTuan(box, tuan) {
+  const W = Math.max(320, box.clientWidth || 800), H = 220, mg = { l: 34, r: 40, t: 20, b: 28 };
+  const max = Math.ceil(Math.max(4, ...tuan.map(t => t.nop)) / 4) * 4;
+  const NS = 'http://www.w3.org/2000/svg', mk = (tag, a) => { const e = document.createElementNS(NS, tag); for (const k in a) e.setAttribute(k, a[k]); return e; };
+  const svg = mk('svg', { viewBox: '0 0 ' + W + ' ' + H, role: 'img', 'aria-label': 'Số bài nộp theo tuần' });
+  const g = mk('g', { class: 'grid' }), ax = mk('g', { class: 'ax' });
+  const y = v => mg.t + (1 - v / max) * (H - mg.t - mg.b), yp = p => mg.t + (1 - p) * (H - mg.t - mg.b);
+  for (let i = 0; i <= 4; i++) { const v = Math.round(max * i / 4); g.append(mk('line', { x1: mg.l, x2: W - mg.r, y1: y(v), y2: y(v) })); const tx = mk('text', { x: mg.l - 6, y: y(v) + 4, 'text-anchor': 'end' }); tx.textContent = v; ax.append(tx); }
+  [0, .5, 1].forEach(p => { const tx = mk('text', { x: W - mg.r + 6, y: yp(p) + 4 }); tx.textContent = Math.round(p * 100) + '%'; ax.append(tx); });
+  svg.append(g, ax);
+  const bw = (W - mg.l - mg.r) / tuan.length, cx = i => mg.l + bw * i + bw / 2;
+  tuan.forEach((t, i) => {
+    const h = H - mg.b - y(t.nop), r = mk('rect', { class: 'c', x: cx(i) - Math.min(28, bw * .6) / 2, y: y(t.nop), width: Math.min(28, bw * .6), height: Math.max(0, h), rx: 3 });
+    const tt = mk('title'); tt.textContent = 'Tuần ' + (i + 1) + ': ' + t.nop + ' bài · ' + Math.round(t.tg * 100) + '% học viên'; r.append(tt); svg.append(r);
+    const dang = i === tuan.length - 1 && S.lop && !S.lop.daXong; if (dang) r.setAttribute('opacity', '.45');
+    const lb = mk('text', { x: cx(i), y: H - 8, 'text-anchor': 'middle' }); lb.textContent = 'T' + (i + 1) + (dang ? '*' : ''); if (dang) { const tt2 = mk('title'); tt2.textContent = 'Tuần đang diễn ra'; lb.append(tt2); } ax.append(lb);
+  });
+  svg.append(mk('path', { class: 'ln', d: tuan.map((t, i) => (i ? 'L' : 'M') + cx(i) + ' ' + yp(t.tg)).join(' ') }));
+  tuan.forEach((t, i) => svg.append(mk('circle', { class: 'p', cx: cx(i), cy: yp(t.tg), r: 4 })));
+  const cuoi = tuan.at(-1); if (cuoi) { const v = mk('text', { class: 'v', x: cx(tuan.length - 1), y: y(cuoi.nop) - 6, 'text-anchor': 'middle' }); v.textContent = cuoi.nop; svg.append(v); }
+  box.innerHTML = ''; box.append(svg);
+}
+function veLopBang(box, T) {
+  const X = S.lop, sx = X.sx;
+  const cot = [['ten', 'Học viên'], ['daGiao', 'Bài giao', 1], ['tongBai', 'Tổng bài', 1], ['cui', 'Củi', 1], ['chuoi', 'Chuỗi', 1], ['L', 'L', 1], ['R', 'R', 1], ['W', 'W', 1], ['S', 'S', 1], ['ov', 'Overall', 1], ['thi', 'Mid → Final', 1], ['lanCuoi', 'Nộp gần nhất', 1], ['canhBao', 'Cờ']];
+  const gt = (h, k) => k === 'ten' ? h.hoTen.split(' ').pop() : k === 'cui' ? h.lua.cui : k === 'chuoi' ? h.lua.chuoi : 'LRWS'.includes(k) && k.length === 1 ? (h.band[k] ?? -1) : k === 'ov' ? (h.ov ?? -1) : k === 'thi' ? ((h.thi.final && h.thi.final.O) ?? (h.thi.mid && h.thi.mid.O) ?? -1) : h[k];
+  const ds = T.hs.slice().sort((a, b) => { const x = gt(a, sx.k), y = gt(b, sx.k); return (typeof x === 'string' ? x.localeCompare(y, 'vi') : x - y) * sx.huong; });
+  const tb = el('table', 'lp-tb'); const tr0 = el('tr');
+  cot.forEach(([k, t, so]) => { const th = el('th', so ? 'so' : '', t); if (sx.k === k) th.setAttribute('aria-sort', sx.huong > 0 ? 'ascending' : 'descending'); th.onclick = () => { sx.huong = sx.k === k ? -sx.huong : (k === 'ten' ? 1 : -1); sx.k = k; veLopBang(box, T); }; tr0.append(th); });
+  const th = el('thead'); th.append(tr0); tb.append(th);
+  const body = el('tbody');
+  ds.forEach(h => {
+    const tr = el('tr');
+    const tn = el('td', 'ten'); const b = el('b', null, h.hoTen); b.onclick = () => moTTHocVien(h.maHS); tn.append(b, el('small', null, h.maHS)); tr.append(tn);
+    tr.append(el('td', 'so', h.daGiao + '/' + T.L.giao.length), el('td', 'so', String(h.tongBai)), el('td', 'so', so(h.lua.cui) + ' · ' + h.lua.tenCap), el('td', 'so', h.lua.chuoi + ' tuần'));
+    KN_LOP.forEach(([k]) => tr.append(el('td', 'so bd' + (h.band[k] == null ? ' mo' : ''), h.band[k] == null ? '–' : bandTxt(h.band[k]))));
+    tr.append(el('td', 'so ov', h.ov == null ? '–' : bandTxt(h.ov)));
+    const mi = h.thi.mid && h.thi.mid.O, fi = h.thi.final && h.thi.final.O;
+    tr.append(el('td', 'so', (mi != null ? bandTxt(mi) : '–') + ' → ' + (fi != null ? bandTxt(fi) : '–')));
+    tr.append(el('td', 'so', h.lanCuoi ? ngayThang(h.lanCuoi) : '–'));
+    const co = el('td'); const w = el('span', 'lp-co'); h.co.forEach(([c, t]) => w.append(el('i', c, t))); co.append(w); tr.append(co);
+    body.append(tr);
+  });
+  tb.append(body); box.innerHTML = ''; box.append(tb);
+}
+function veMaTran(box, T) {
+  const L = T.L, tb = el('table', 'lp-mt');
+  const tr0 = el('tr'); tr0.append(el('th'));
+  L.giao.forEach(g => { const th = el('th', 'de', g.ten); th.title = g.maDe + ' · ' + g.ten; tr0.append(th); });
+  const th = el('thead'); th.append(tr0); tb.append(th);
+  const body = el('tbody');
+  T.hs.slice().sort((a, b) => b.daGiao - a.daGiao).forEach(h => {
+    const tr = el('tr'); tr.append(el('td', 'nm', h.hoTen.split(' ').slice(-2).join(' ')));
+    L.giao.forEach(g => {
+      const bs = h.bai.filter(b => b.maDe === g.maDe), b = bs.at(-1);
+      let cls = 'o', txt = '';
+      if (b) {
+        if (b.band == null && b.tl == null) { cls += ' cho'; txt = '…'; }
+        else { const v = b.band != null ? b.band / 9 : b.tl; cls += v >= .75 ? ' c3' : v >= .6 ? ' c2' : ' c1'; txt = b.band != null ? bandTxt(b.band) : Math.round(b.tl * 100); }
+      }
+      const td = el('td', cls, String(txt)); td.title = h.hoTen + ' · ' + g.ten + (b ? ' · ' + (b.band != null ? 'band ' + bandTxt(b.band) : b.tl != null ? Math.round(b.tl * 100) + '% đúng' : 'chờ chấm') : ' · chưa làm'); tr.append(td);
+    });
+    body.append(tr);
+  });
+  tb.append(body);
+  const tf = el('tfoot'); const trf = el('tr'); trf.append(el('td', 'nm', 'Đã làm'));
+  L.giao.forEach(g => trf.append(el('td', null, T.hs.filter(h => h.bai.some(b => b.maDe === g.maDe)).length + '/' + T.hs.length)));
+  tf.append(trf); tb.append(tf);
+  box.append(tb);
+}
+function veThiLop(card, T) {
+  const tb = a => { const v = a.filter(x => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+  const g = el('div', 'lp-thi');
+  g.append(el('span', 'h', ''), el('span', 'h', 'Mid term'), el('span', 'h', 'Final test'), el('span', 'h', 'Thay đổi'));
+  KN_LOP.concat([['O', 'Overall']]).forEach(([k, ten]) => {
+    const mi = tb(T.hs.map(h => h.thi.mid && h.thi.mid[k])), fi = tb(T.hs.map(h => h.thi.final && h.thi.final[k]));
+    const bar = (cls, v) => { const d = el('div', 'b ' + cls); const i = el('i'); i.style.width = (v == null ? 0 : v / 9 * 100) + '%'; d.append(i, el('b', null, v == null ? '–' : v.toFixed(1))); return d; };
+    const d = mi != null && fi != null ? Math.round((fi - mi) * 10) / 10 : null;
+    const nm = el('span', null, ten); if (k === 'O') nm.style.fontWeight = '800';
+    g.append(nm, bar('mid', mi), bar('fin', fi), el('span', d == null ? 'muted' : d > 0 ? 'len' : d < 0 ? 'xuong' : '', d == null ? 'chưa có' : dauDelta(d)));
+  });
+  card.append(g);
+  const nth = T.hs.filter(h => h.thi.mid).length, nf = T.hs.filter(h => h.thi.final).length;
+  card.append(el('p', 'muted', nth + '/' + T.hs.length + ' em có điểm Mid term · ' + nf + '/' + T.hs.length + ' em có điểm Final test'));
+  card.lastChild.style.cssText = 'margin:0;font-size:12.5px';
+}
 </script>
 </body>
 </html>
