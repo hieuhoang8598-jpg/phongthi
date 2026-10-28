@@ -1541,9 +1541,10 @@ function coNhap(d) {
 function trangThai(d) { return (laNL(d.loai) ? rlSoLanLam(d.maDe) : S.daNop[d.maDe]) ? 'done' : coNhap(d) ? 'doing' : 'new'; }
 const ST = { new: ['st-new', 'Chưa làm'], doing: ['st-doing', 'Đang làm dở'], done: ['st-done', 'Đã nộp'] };
 const THU_TU = ['Writing|Task 1', 'Writing|Task 2', 'Writing|Full', 'Speaking|Part 1', 'Speaking|Part 2', 'Speaking|Part 3', 'Speaking|Full', 'Reading|Full', 'Listening|Full', 'Kỹ năng|', 'Bài tập|'];
-const khoaNhom = d => d.loai + '|' + (d.loai === 'Bài tập' ? '' : d.phan);
-const tenNhom = d => d.loai === 'Bài tập' ? 'Bài tập' : d.loai === 'Kỹ năng' ? 'Bài kỹ năng' : laNL(d.loai) ? d.loai : d.loai + ' · ' + (d.phan === 'Full' ? 'Full test' : d.phan);
-const dangBai = d => d.loai === 'Bài tập' ? 'Bài tập · ' + d.soCau + ' câu' : d.loai === 'Kỹ năng' ? 'Bài kỹ năng · ' + d.noiDung : laNL(d.loai) && d.rl ? d.loai + ' · ' + d.rl.phan.length + ' ' + TEN_PHAN_NL(d.loai) + ' · ' + d.soCau + ' câu' : d.loai + ' ' + (d.phan === 'Full' ? 'Full test' : d.phan);
+const loaiLoc = d => d.loai === 'Kỹ năng' ? (d.kyNang || 'Reading') : d.loai; // bài kỹ năng xếp theo Nghe / Nói / Đọc / Viết
+const khoaNhom = d => loaiLoc(d) + '|' + (d.loai === 'Bài tập' ? '' : d.loai === 'Kỹ năng' ? (laNL(loaiLoc(d)) ? 'Full' : '') : d.phan);
+const tenNhom = d => d.loai === 'Bài tập' ? 'Bài tập' : d.loai === 'Kỹ năng' ? (laNL(loaiLoc(d)) ? loaiLoc(d) : loaiLoc(d) + ' · Bài kỹ năng') : laNL(d.loai) ? d.loai : d.loai + ' · ' + (d.phan === 'Full' ? 'Full test' : d.phan);
+const dangBai = d => d.loai === 'Bài tập' ? 'Bài tập · ' + d.soCau + ' câu' : d.loai === 'Kỹ năng' ? loaiLoc(d) + ' · Bài về nhà kỹ năng · ' + d.noiDung : laNL(d.loai) && d.rl ? d.loai + ' · ' + d.rl.phan.length + ' ' + TEN_PHAN_NL(d.loai) + ' · ' + d.soCau + ' câu' : d.loai + ' ' + (d.phan === 'Full' ? 'Full test' : d.phan);
 
 function renderKhoa() {
   const row = $('khoaRow'); row.innerHTML = '';
@@ -1560,9 +1561,9 @@ function renderKhoa() {
 function renderFilters(cua) {
   const box = $('filters');
   box.querySelectorAll('.chip').forEach(c => c.remove());
-  const co = new Set(cua.map(d => d.loai));
+  const co = new Set(cua.map(loaiLoc));
   if (S.loai && !co.has(S.loai)) S.loai = '';
-  const ds = [['', 'Tất cả']].concat(['Writing', 'Speaking', 'Reading', 'Listening', 'Kỹ năng', 'Bài tập'].filter(l => co.has(l)).map(l => [l, l === 'Kỹ năng' ? 'Bài kỹ năng' : l]));
+  const ds = [['', 'Tất cả']].concat(['Writing', 'Speaking', 'Reading', 'Listening', 'Bài tập'].filter(l => co.has(l)).map(l => [l, l]));
   ds.forEach(([v, t]) => {
     const c = el('button', 'chip', t); c.setAttribute('aria-pressed', String(S.loai === v));
     c.onclick = () => { S.loai = v; renderList(); luuViTri(viTriDs()); };
@@ -1582,10 +1583,18 @@ function renderList() {
   const tab = S.nhom === 'practice' ? prac : giao;
   renderFilters(tab);
   const q = S.tim.toLowerCase();
-  const items = tab.filter(d => (!S.loai || d.loai === S.loai) &&
+  const items = tab.filter(d => (!S.loai || loaiLoc(d) === S.loai) &&
     (!q || (d.maDe + ' ' + d.ten + ' ' + (d.chuDe || '') + ' ' + d.noiDung).toLowerCase().includes(q)));
   const box = $('list'); box.innerHTML = '';
-  if (laNL(S.loai)) { renderRLList(items, box); return; }
+  if (laNL(S.loai)) {
+    const kn = items.filter(d => d.loai === 'Kỹ năng'), rl = items.filter(d => d.loai !== 'Kỹ năng');
+    if (kn.length) {
+      const g = el('div', 'grp'); g.append(el('h4', null, 'Bài về nhà kỹ năng'), el('small', null, kn.length + ' bài')); box.appendChild(g);
+      kn.forEach(d => box.appendChild(theDe(d)));
+    }
+    if (rl.length || !kn.length) renderRLList(rl, box);
+    return;
+  }
   if (!items.length) {
     box.appendChild(el('div', 'empty', tab.length ? vb('ds.trongLoc') : vb('ds.trong')));
     return;
@@ -1599,25 +1608,28 @@ function renderList() {
       const g = el('div', 'grp'); g.append(el('h4', null, tenNhom(d)), el('small', null, items.filter(x => khoaNhom(x) === truoc).length + ' đề'));
       box.appendChild(g);
     }
-    const st = trangThai(d);
-    const b = el('button', 'task');
-    const r1 = el('div', 'row'); r1.append(el('span', 'code', d.maDe), el('span', 'pill ' + ST[st][0], ST[st][1]));
-    const khoaDe = d.khoa.length === 1 ? d.khoa[0] : S.khoa;
-    const c = el('div', 'course'); const i = el('i'); i.style.background = MAU_KHOA[khoaDe]; c.append(i, khoaDe + ' · ' + dangBai(d));
-    const t = el('div'); t.append(c); const h = el('h3', null, d.chuDe || d.ten); h.style.marginTop = '6px'; t.append(h);
-    b.append(r1, t);
-    if (laNL(d.loai) && d.rl) b.append(el('p', null, d.rl.phan.map(p => p.chuDe || p.ten).join(' · ')));
-    else if (d.loai === 'Kỹ năng' && d.kn) b.append(el('p', null, d.kn.phan.map(p => p.ten + ' (' + p.soCau + ')').join(' · ') + (d.kn.baiDoc && d.kn.baiDoc.length ? ' · ' + d.kn.baiDoc.join(', ') : '')));
-    else if (d.loai !== 'Bài tập') b.append(el('p', null, d.noiDung.replace(/\s+/g, ' ')));
-    const meta = el('div', 'meta');
-    if (d.thoiGian) { const s1 = el('span', null, 'Thời gian '); s1.append(el('b', null, d.thoiGian + ' phút')); meta.append(s1); }
-    if (d.loai === 'Bài tập') { const s2 = el('span', null, 'Số câu '); s2.append(el('b', null, String(d.soCau))); meta.append(s2); }
-    if (st === 'done') meta.append(el('span', null, laNL(d.loai) ? 'Đã luyện ' + rlSoLanLam(d.maDe) + ' lần' : 'Đã nộp · ' + S.daNop[d.maDe]));
-    else if (st === 'doing') meta.append(el('span', null, 'Có bản nháp, làm tiếp nhé'));
-    if (meta.children.length) b.append(meta);
-    b.onclick = () => openDe(d);
-    box.appendChild(b);
+    box.appendChild(theDe(d));
   });
+}
+function theDe(d) {
+  const st = trangThai(d);
+  const b = el('button', 'task');
+  const r1 = el('div', 'row'); r1.append(el('span', 'code', d.maDe), el('span', 'pill ' + ST[st][0], ST[st][1]));
+  const khoaDe = d.khoa.length === 1 ? d.khoa[0] : S.khoa;
+  const c = el('div', 'course'); const i = el('i'); i.style.background = MAU_KHOA[khoaDe]; c.append(i, khoaDe + ' · ' + dangBai(d));
+  const t = el('div'); t.append(c); const h = el('h3', null, d.chuDe || d.ten); h.style.marginTop = '6px'; t.append(h);
+  b.append(r1, t);
+  if (laNL(d.loai) && d.rl) b.append(el('p', null, d.rl.phan.map(p => p.chuDe || p.ten).join(' · ')));
+  else if (d.loai === 'Kỹ năng' && d.kn) b.append(el('p', null, d.kn.phan.map(p => p.ten + ' (' + p.soCau + ')').join(' · ') + (d.kn.baiDoc && d.kn.baiDoc.length ? ' · ' + d.kn.baiDoc.join(', ') : '')));
+  else if (d.loai !== 'Bài tập') b.append(el('p', null, d.noiDung.replace(/\s+/g, ' ')));
+  const meta = el('div', 'meta');
+  if (d.thoiGian) { const s1 = el('span', null, 'Thời gian '); s1.append(el('b', null, d.thoiGian + ' phút')); meta.append(s1); }
+  if (d.loai === 'Bài tập') { const s2 = el('span', null, 'Số câu '); s2.append(el('b', null, String(d.soCau))); meta.append(s2); }
+  if (st === 'done') meta.append(el('span', null, laNL(d.loai) ? 'Đã luyện ' + rlSoLanLam(d.maDe) + ' lần' : 'Đã nộp · ' + S.daNop[d.maDe]));
+  else if (st === 'doing') meta.append(el('span', null, 'Có bản nháp, làm tiếp nhé'));
+  if (meta.children.length) b.append(meta);
+  b.onclick = () => openDe(d);
+  return b;
 }
 document.querySelector('.tabs').onclick = e => {
   const b = e.target.closest('[data-tab]'); if (!b) return;
