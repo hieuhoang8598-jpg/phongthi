@@ -1049,6 +1049,101 @@ mark.k-seg.xong{background:var(--ok-soft);box-shadow:inset 0 -2px 0 var(--ok)}
   #scr-kn .exambar .back-t{display:none}
 }
 @media (prefers-reduced-motion:reduce){.k-s{transition:none}}
+
+.k-pen .ic-tu{background:var(--stv-soft,#E1ECFF);color:var(--stv,#2F6FDB);border-radius:4px;padding:0 4px;font-weight:700}
+.k-pen[data-v=tu].on{border-color:var(--stv,#2F6FDB)}
+
+/* ====== SỔ TỪ VỰNG ====== */
+:root{--stv:#2F6FDB;--stv-soft:#E1ECFF}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--stv:#7FA9FF;--stv-soft:#1A2740}}
+:root[data-theme="dark"]{--stv:#7FA9FF;--stv-soft:#1A2740}
+.stv-nut{display:inline-flex;align-items:center;gap:6px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;font-weight:700;font-size:13px;white-space:nowrap;flex:none}
+.exambar .stv-nut{background:#ffffff14;border-color:#ffffff30;color:#fff}
+.stv-nut:hover{border-color:var(--brand)}
+.stv-nut .n{background:var(--brand);color:var(--on-brand);border-radius:99px;padding:0 7px;font-size:11.5px}
+.stv-nut svg{width:16px;height:16px}
+.stv-bubble{position:absolute;z-index:60;background:var(--night);color:var(--on-night);border:0;border-radius:99px;padding:7px 14px;font-weight:700;font-size:13.5px;box-shadow:var(--shadow);white-space:nowrap}
+.stv-bubble::after{content:"";position:absolute;left:50%;top:100%;border:6px solid transparent;border-top-color:var(--night);transform:translateX(-50%)}
+.stv-scrim{position:fixed;inset:0;background:rgba(20,18,16,.35);z-index:55}
+.stv-pan{position:fixed;top:0;right:0;bottom:0;width:min(440px,100vw);z-index:56;background:var(--bg);border-left:1px solid var(--line);box-shadow:var(--shadow);display:flex;flex-direction:column;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+.stv-hd{padding:14px 16px 12px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px;background:var(--surface)}
+.stv-hd .r1{display:flex;align-items:center;gap:10px}
+.stv-hd h3{font-size:24px;font-weight:800;flex:1}
+.stv-x{border:0;background:var(--surface-2);border-radius:99px;width:34px;height:34px;font-size:20px;line-height:1}
+.stv-act{display:flex;gap:6px;flex-wrap:wrap}
+.stv-b{border:1px solid var(--line);background:var(--surface);border-radius:var(--r-sm);padding:6px 12px;font-weight:600;font-size:13px}
+.stv-b:hover{border-color:var(--ink-2)}
+.stv-b.pri{background:var(--brand);border-color:var(--brand);color:var(--on-brand)}
+.stv-b[disabled]{opacity:.45;cursor:default}
+.stv-loc{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.stv-loc .f{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:3px 10px;font-size:12.5px;font-weight:600}
+.stv-loc .f.on{background:var(--night);color:var(--on-night);border-color:var(--night)}
+.stv-inp{width:100%;background:var(--surface-2);border:1px solid var(--line);border-radius:var(--r-sm);padding:7px 10px;font-size:14.5px;font-family:inherit;color:inherit}
+.stv-inp:focus{border-color:var(--brand);outline:0}
+.stv-inp[disabled]{opacity:.75;background:repeating-linear-gradient(-45deg,var(--surface-2),var(--surface-2) 6px,var(--line-2) 6px,var(--line-2) 12px)}
+.stv-ds{flex:1;overflow:auto;padding:12px;display:flex;flex-direction:column;gap:10px}
+.stv-them{background:var(--surface);border:1.5px dashed var(--line);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.stv-them summary{cursor:pointer;font-weight:700;font-size:14px;color:var(--brand-ink)}
+.stv-the{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:10px 12px;display:flex;flex-direction:column;gap:6px}
+.stv-the.moi{border-color:var(--stv);box-shadow:0 0 0 2px var(--stv-soft)}
+.stv-th{display:flex;align-items:center;gap:8px}
+.stv-th b{font-family:var(--font-essay);font-size:18px;font-weight:600;min-width:0;overflow-wrap:anywhere}
+.stv-loa{border:0;background:var(--surface-2);border-radius:99px;width:28px;height:28px;display:grid;place-items:center;flex:none;color:var(--ink)}
+.stv-loa svg{width:15px;height:15px}
+.stv-xoa{margin-left:auto;border:0;background:none;color:var(--muted);font-size:18px;line-height:1;padding:2px 6px}
+.stv-ctx{font-family:var(--font-essay);font-size:14px;color:var(--ink-2);font-style:italic;line-height:1.5}
+.stv-ctx em{font-style:normal;font-weight:600;color:var(--stv);background:var(--stv-soft);border-radius:3px;padding:0 2px}
+.stv-lb{font-size:11.5px;color:var(--muted);font-weight:600}
+.stv-dg{display:flex;gap:4px;flex-wrap:wrap;align-items:center}
+.stv-dg button{border:1px solid var(--line);background:var(--surface-2);border-radius:99px;padding:2px 10px;font-size:12.5px;font-weight:600}
+.stv-dg button.on.ok{background:var(--ok);color:#fff;border-color:var(--ok)}
+.stv-dg button.on.warn{background:var(--warn);color:#fff;border-color:var(--warn)}
+.stv-dg button.on.bad{background:var(--bad);color:#fff;border-color:var(--bad)}
+.stv-meta{font-size:11.5px;color:var(--muted);display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.stv-hop{display:inline-flex;gap:2px}
+.stv-hop i{width:8px;height:8px;border-radius:2px;background:var(--line)}
+.stv-hop i.on{background:var(--brand)}
+.stv-empty{color:var(--muted);font-size:13.5px;text-align:center;padding:20px 8px}
+.stv-chip{font-size:11.5px;font-weight:600;border-radius:99px;padding:1px 8px;background:var(--surface-2);color:var(--ink-2)}
+.stv-chip.ok{background:var(--ok-soft);color:var(--ok)}.stv-chip.warn{background:var(--warn-soft);color:var(--warn)}.stv-chip.bad{background:var(--bad-soft);color:var(--bad)}
+.stv-ft{border-top:1px solid var(--line);padding:10px 14px;font-size:12.5px;color:var(--muted);background:var(--surface)}
+.stv-stat{display:flex;gap:12px;font-size:12.5px;color:var(--muted);flex-wrap:wrap}
+.stv-stat b{color:var(--ink)}
+/* ôn tập */
+.on-wrap{max-width:640px;margin:0 auto;display:flex;flex-direction:column;gap:14px;padding:18px max(16px,env(safe-area-inset-right,0px)) 60px max(16px,env(safe-area-inset-left,0px))}
+.on-prog{display:flex;align-items:center;gap:10px;font-size:13px;color:#ffffffb0;font-variant-numeric:tabular-nums;flex:1;max-width:420px}
+.on-prog .t{flex:1;height:8px;border-radius:99px;background:#ffffff26;overflow:hidden}
+.on-prog .t i{display:block;height:100%;background:var(--brand)}
+.on-ex{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-md);padding:22px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;min-height:300px}
+.on-kind{font-size:12px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--stv)}
+.on-big{font-family:var(--font-essay);font-size:clamp(28px,6vw,40px);font-weight:600;line-height:1.15}
+.on-opts{display:grid;gap:8px}
+.on-opt{text-align:left;border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-sm);padding:10px 14px;font-size:15.5px}
+.on-opt:hover{border-color:var(--ink-2)}
+.on-opt.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);font-weight:600}
+.on-opt.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.on-flip{perspective:900px;cursor:pointer}
+.on-flip .card{position:relative;min-height:190px;transition:transform .45s;transform-style:preserve-3d}
+.on-flip.lat .card{transform:rotateY(180deg)}
+.on-flip .mat{position:absolute;inset:0;backface-visibility:hidden;border-radius:var(--r-md);background:var(--surface-2);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:18px;text-align:center}
+.on-flip .sau{transform:rotateY(180deg);background:var(--stv-soft)}
+.on-kq{font-weight:700}.on-kq.ok{color:var(--ok)}.on-kq.bad{color:var(--bad)}
+.on-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.on-match{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.on-match>div{display:flex;flex-direction:column;gap:8px}
+.on-mt{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-sm);padding:10px 12px;text-align:left;font-size:14.5px;min-height:46px}
+.on-mt.sel{border-color:var(--stv);box-shadow:0 0 0 2px var(--stv-soft)}
+.on-mt.done{background:var(--ok-soft);border-color:var(--ok);color:var(--ok);opacity:.75}
+.on-mt.sai{background:var(--bad-soft);border-color:var(--bad)}
+.on-end{text-align:center;align-items:center;justify-content:center}
+@media (max-width:440px){.topbar .mark .wm{display:none}}
+@media (max-width:560px){.topbar{gap:10px}.topbar .stv-nut{padding:6px 9px}.topbar .mark .wm small{display:none}}
+@media (max-width:760px){
+  .stv-pan{top:auto;left:0;width:100%;height:88vh;border-left:0;border-top:1px solid var(--line);border-radius:var(--r-lg) var(--r-lg) 0 0}
+  .stv-nut .t{display:none}
+  .on-match{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){.on-flip .card{transition:none}}
 .rl-wide{grid-column:1/-1}
 </style>
 </head>
@@ -5140,7 +5235,7 @@ function knWords(scope, text, fx) {
   });
   dong(); return out + buf;
 }
-const knPens = (hint, cls) => KN.ro ? '' : '<div class="k-pens ' + (cls || '') + '">' + [['gach', 'Gạch từ khóa'], ['khoanh', 'Khoanh Anchor']].map(([v, t]) =>
+const knPens = (hint, cls) => KN.ro ? '' : '<div class="k-pens ' + (cls || '') + '">' + [['gach', 'Gạch từ khóa'], ['khoanh', 'Khoanh Anchor'], ['tu', 'Ghi từ mới']].map(([v, t]) =>
   '<button class="k-pen ' + (KN.st.pen === v ? 'on' : '') + '" data-a="pen" data-v="' + v + '"><span class="ic ic-' + v + '">ab</span>' + t + '</button>').join('') + '<span class="k-phint">' + hint + '</span></div>';
 function knKqDong(r) {
   const l = [];
@@ -5365,7 +5460,7 @@ function knDanhDau(keys, boi) {
 }
 let knKeo = false;
 function knApChon() {
-  if (dangO() !== 'scr-kn' || KN.ro) return;
+  if (dangO() !== 'scr-kn' || KN.ro || KN.st.pen === 'tu') return; // bút "Ghi từ mới": để sổ từ xử lý chỗ bôi đen
   const sel = getSelection(); if (!sel || sel.isCollapsed || !sel.rangeCount) return;
   const r = sel.getRangeAt(0);
   const ks = [...$('knMain').querySelectorAll('[data-w]')].filter(e => r.intersectsNode(e)).map(e => e.dataset.w);
@@ -5378,7 +5473,10 @@ document.addEventListener('mouseup', () => { if (dangO() === 'scr-kn') setTimeou
 $('knMain').addEventListener('click', async e => {
   if (knKeo) return;
   const elx = e.target.closest('[data-a],[data-w]'); if (!elx) return;
-  if (elx.dataset.w) return knDanhDau([elx.dataset.w], false);
+  if (elx.dataset.w) {
+    if (KN.st.pen === 'tu') { if (!KN.ro && knCoarse() && typeof stvThemTuChu === 'function') stvThemTuChu(elx); return; }
+    return knDanhDau([elx.dataset.w], false);
+  }
   const a = elx.dataset.a, v = elx.dataset.v, st = KN.st;
   if (a === 'step') { st.step = v; KN.vuaNop = false; knCommit(); window.scrollTo(0, 0); knLuuMay(false); return; }
   if (a === 'pen') { st.pen = v; return knVe(); }
@@ -5459,6 +5557,360 @@ function renderTTKN(cuaLoai) {
   veHanhTrinh($('ttTl'), cuaLoai);
   $('ttTlSub').textContent = cuaLoai.length ? 'Mới nhất ở trên' : '';
 }
+</script>
+
+<!-- ============ ÔN TỪ VỰNG ============ -->
+<section id="scr-on" class="screen" hidden>
+  <div class="exambar">
+    <button class="back" id="onBack">← <span class="back-t">Quay lại</span></button>
+    <div class="t"><b>Ôn từ vựng</b><span id="onSub">Bài ôn tạo từ sổ từ của em</span></div>
+    <div class="on-prog" id="onProg"></div>
+    <div class="sp"></div>
+  </div>
+  <main id="onMain"></main>
+</section>
+<div id="stvRoot"></div>
+<script>
+/* ====== SỔ TỪ VỰNG ====== */
+const STV = { ds: [], thuong: new Set(), tai: false, mo: false, loc: '', tim: '', moi: null, henLuu: {}, on: null, ve: 'scr-list', chon: null };
+const STV_NGAY = 864e5, STV_HOP = [0, 0, 1, 3, 7, 14]; // hộp 1..5 → số ngày đến lần ôn sau
+const STV_KHONG = ['scr-login', 'scr-list', 'scr-tien', 'scr-thay', 'scr-cham', 'scr-lop', 'scr-thi', 'scr-on', 'scr-bc'];
+const STV_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v17H6.5A2.5 2.5 0 0 0 4 21.5z"/><path d="M4 21.5A2.5 2.5 0 0 1 6.5 19H20v3H6.5"/><path d="M9 7h7M9 11h5"/></svg>';
+const STV_LOA = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a7.5 7.5 0 0 1 0 11"/></svg>';
+const stvEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
+const stvChuan = s => String(s || '').toLowerCase().replace(/[’']/g, "'").replace(/[^a-z' -]/g, '').replace(/\s+/g, ' ').trim();
+const stvRe = s => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const stvHom = () => { const d = new Date(); return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+const stvHocVien = () => !!(S.hs && !S.thay);
+function stvNoi(tu) { try { const u = new SpeechSynthesisUtterance(tu); u.lang = 'en-GB'; u.rate = 0.9; speechSynthesis.cancel(); speechSynthesis.speak(u); } catch (e) { toast('Máy này chưa đọc phát âm được'); } }
+
+/* ---------- tải & lưu ---------- */
+async function stvTai() {
+  if (!stvHocVien()) return;
+  try { const c = JSON.parse(store('stv_' + S.ma) || 'null'); if (c && !STV.tai) { STV.ds = c.ds || []; } } catch (e) { }
+  try {
+    const r = await goi('getSoTu', [S.ma, S.pin]);
+    const dangSua = new Set(Object.keys(STV.henLuu));
+    const moiHon = STV.ds.filter(w => dangSua.has(w.id));
+    STV.ds = (r.ds || []).filter(w => !dangSua.has(w.id)).concat(moiHon);
+    STV.thuong = new Set(r.thuong || []); STV.tai = true;
+    stvCache(); stvGanNut(); if (STV.mo) stvVe();
+  } catch (e) { console.error(e); }
+}
+function stvCache() { try { store('stv_' + S.ma, JSON.stringify({ ds: STV.ds })); } catch (e) { } }
+function stvLuu(w, ngay) {
+  stvCache();
+  clearTimeout(STV.henLuu[w.id]);
+  const gui = () => { delete STV.henLuu[w.id]; goi('luuSoTu', [S.ma, S.pin, [w]]).catch(e => { console.error(e); STV.henLuu[w.id] = setTimeout(gui, 20000); }); };
+  if (ngay) gui(); else STV.henLuu[w.id] = setTimeout(gui, 1200);
+}
+
+/* ---------- nút "Sổ từ" ở góc trên bên phải ---------- */
+function stvGanNut() {
+  document.querySelectorAll('.stv-nut').forEach(b => b.remove());
+  if (!stvHocVien()) return;
+  const id = dangO(); if (!id || id === 'scr-login' || id === 'scr-on') return;
+  let h = document.querySelector('#' + id + ' .topbar, #' + id + ' .exambar');
+  if (!h && !$('exBar').hidden) h = $('exBar');
+  if (!h) return;
+  const chua = STV.ds.filter(w => !w.nghia).length;
+  const b = el('button', 'stv-nut'); b.type = 'button'; b.setAttribute('aria-label', 'Mở sổ từ vựng');
+  b.innerHTML = STV_ICON + '<span class="t">Sổ từ</span><span class="n">' + (chua || STV.ds.length) + '</span>';
+  if (chua) b.title = chua + ' từ chưa tra nghĩa';
+  b.onclick = () => stvMo();
+  const truoc = h.querySelector(':scope > .who, :scope > #btnTT, :scope > .linkbtn');
+  if (truoc) h.insertBefore(b, truoc); else h.append(b);
+}
+const stvShowGoc = show;
+show = function (id) { stvShowGoc(id); stvBoNut(); if (STV.mo) stvDong(); setTimeout(stvGanNut, 0); if (stvHocVien() && !STV.tai && !STV.dangTai) { STV.dangTai = true; stvTai().finally(() => { STV.dangTai = false; }); } };
+
+/* ---------- đang làm bài nào ---------- */
+function stvBaiDangLam() {
+  const id = dangO();
+  if (id === 'scr-kn' && typeof KN !== 'undefined' && KN.d) return { ma: KN.ma, khoa: !KN.ro };
+  if (id === 'scr-rl' && S.rl && S.rl.d) return { ma: S.rl.d.maDe, khoa: S.rl.mode === 'lam' };
+  if (['scr-writing', 'scr-speaking', 'scr-baitap'].includes(id) && S.cur) return { ma: S.cur.maDe, khoa: false };
+  return null;
+}
+const stvKhoa = w => { const b = stvBaiDangLam(); return !!(w.maDe && b && b.khoa && b.ma === w.maDe); };
+
+/* ---------- bôi đen → "+ Sổ từ" ---------- */
+function stvBoNut() { const b = document.querySelector('.stv-bubble'); if (b) b.remove(); }
+function stvNguCanh(rg, tu) {
+  let n = rg.startContainer; if (n.nodeType === 3) n = n.parentElement;
+  const k = n.closest('.k-s') || n.closest('p, li, td, .q, .k-qt, .rl-q, div');
+  let t = '';
+  if (k) { const c = k.cloneNode(true); c.querySelectorAll('.k-qm, .k-qn, button, .rl-note, .stv-bubble, input, select').forEach(x => x.remove()); t = c.textContent; }
+  t = t.replace(/\[\d+\]/g, ' ').replace(/\s+/g, ' ').trim();
+  const cau = t.split(/(?<=[.!?])\s+(?=[A-Z"“])/);
+  const re = new RegExp('\\b' + stvRe(tu) + '\\b', 'i');
+  t = cau.find(c => re.test(c)) || t;
+  return t.length > 400 ? t.slice(0, 400) + '…' : t;
+}
+function stvChon() {
+  stvBoNut(); STV.chon = null;
+  if (!stvHocVien() || STV.mo) return;
+  const id = dangO(); if (!id || STV_KHONG.includes(id)) return;
+  const sel = getSelection(); if (!sel || sel.isCollapsed || !sel.rangeCount) return;
+  const rg = sel.getRangeAt(0); let n = rg.commonAncestorContainer; if (n.nodeType === 3) n = n.parentElement;
+  if (!n || n.closest('input, textarea, .stv-pan, .exambar, .topbar')) return;
+  // bài kỹ năng: bôi đen chữ trong bài là highlight / gạch từ khóa, trừ khi em chọn bút "Ghi từ mới"
+  if (id === 'scr-kn' && typeof KN !== 'undefined' && KN.st && !KN.ro && KN.st.pen !== 'tu' && [...$('knMain').querySelectorAll('[data-w]')].some(e => rg.intersectsNode(e))) return;
+  // bài đọc/nghe: đang bật Tô vàng / Ghi chú thì bôi đen là để tô
+  if (id === 'scr-rl' && S.rl && S.rl.cong && $('rlDoc').contains(n)) return;
+  const tu = sel.toString().replace(/\s+/g, ' ').trim().replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, '');
+  if (!tu || tu.length > 50 || tu.split(' ').length > 5 || !/[A-Za-z]/.test(tu)) return;
+  STV.chon = { tu: tu, cau: stvNguCanh(rg, tu) };
+  const rc = rg.getBoundingClientRect(), b = el('button', 'stv-bubble', '+ Sổ từ: ' + tu);
+  b.type = 'button'; b.onmousedown = e => e.preventDefault();
+  b.onclick = () => stvThem(STV.chon);
+  document.body.append(b);
+  const w = b.offsetWidth;
+  b.style.left = Math.max(8, Math.min(innerWidth - w - 8, rc.left + rc.width / 2 - w / 2)) + scrollX + 'px';
+  b.style.top = Math.max(scrollY + 4, rc.top + scrollY - b.offsetHeight - 10) + 'px';
+}
+document.addEventListener('mouseup', e => { if (e.target.closest && e.target.closest('.stv-bubble')) return; setTimeout(stvChon, 10); });
+document.addEventListener('selectionchange', () => { if (!matchMedia('(pointer:coarse)').matches) return; clearTimeout(STV.hc); STV.hc = setTimeout(stvChon, 600); });
+/** Thêm từ (từ chỗ bôi đen, từ bút "Ghi từ mới" của bài kỹ năng, hoặc tự gõ) */
+function stvThem(o) {
+  if (!o || !o.tu) return;
+  const b = stvBaiDangLam(), ma = o.maDe != null ? o.maDe : (b ? b.ma : '');
+  const co = STV.ds.find(w => stvChuan(w.tu) === stvChuan(o.tu) && w.maDe === ma);
+  stvBoNut(); try { getSelection().removeAllRanges(); } catch (e) { }
+  if (co) { STV.moi = co.id; toast('Từ “' + co.tu + '” đã có trong sổ'); stvMo(ma ? 'bai' : ''); return; }
+  const w = { id: S.ma + '-' + Date.now().toString(36) + Math.random().toString(36).slice(2, 5), tu: o.tu, cau: o.cau || '', doan: o.doan || '', nghia: o.nghia || '', dg: '', maDe: ma, hop: 1, han: Date.now(), them: Date.now() };
+  STV.ds.push(w); STV.moi = w.id; stvLuu(w, true); stvGanNut();
+  stvMo(ma ? 'bai' : '');
+  setTimeout(() => { const i = document.getElementById('stv-d-' + w.id); if (i && !o.doan) i.focus(); }, 60);
+}
+/** Bút "Ghi từ mới" trên điện thoại: chạm vào chữ là thêm */
+function stvThemTuChu(elm) {
+  if (!elm) return;
+  const tu = elm.textContent.replace(/^[^A-Za-z]+|[^A-Za-z]+$/g, '');
+  const rg = document.createRange(); rg.selectNodeContents(elm);
+  stvThem({ tu: tu, cau: stvNguCanh(rg, tu) });
+}
+
+/* ---------- bảng sổ từ ---------- */
+function stvMo(loc) {
+  STV.mo = true; stvBoNut();
+  const b = stvBaiDangLam();
+  STV.loc = loc != null ? loc : (b ? 'bai' : '');
+  stvVe();
+}
+function stvDong() { STV.mo = false; $('stvRoot').innerHTML = ''; stvGanNut(); stvKiemThuongTra(); }
+function stvCau(w) { return stvEsc(w.cau || '').replace(new RegExp('(' + stvRe(stvEsc(w.tu)) + ')', 'i'), '<em>$1</em>'); }
+function stvVe() {
+  if (!STV.mo) return;
+  const b = stvBaiDangLam(), q = stvChuan(STV.tim), nay = Date.now();
+  if (STV.loc === 'bai' && !b) STV.loc = '';
+  const ds = STV.ds.filter(w => (STV.loc === 'bai' ? w.maDe === b.ma : STV.loc === 'chua' ? !w.nghia : STV.loc === 'han' ? w.nghia && w.han <= nay : true) && (!q || stvChuan(w.tu + ' ' + w.nghia + ' ' + w.doan).includes(q)))
+    .sort((x, y) => (y.id === STV.moi) - (x.id === STV.moi) || y.them - x.them);
+  const han = STV.ds.filter(w => w.nghia && w.han <= nay).length, coNghia = STV.ds.filter(w => w.nghia).length;
+  const dg = STV.ds.filter(w => w.dg), dung = dg.filter(w => w.dg === 'dung').length;
+  const khoaBai = b && b.khoa;
+  const the = w => {
+    const k = stvKhoa(w);
+    return '<div class="stv-the ' + (STV.moi === w.id ? 'moi' : '') + '" data-id="' + w.id + '"><div class="stv-th"><b>' + stvEsc(w.tu) + '</b><button class="stv-loa" data-a="noi" data-v="' + stvEsc(w.tu) + '" aria-label="Nghe phát âm">' + STV_LOA + '</button>' +
+      (w.dg ? '<span class="stv-chip ' + ({ dung: 'ok', gan: 'warn', sai: 'bad' })[w.dg] + '">' + ({ dung: 'Đoán đúng', gan: 'Gần đúng', sai: 'Đoán sai' })[w.dg] + '</span>' : '') +
+      '<button class="stv-xoa" data-a="xoa" data-v="' + w.id + '" aria-label="Xoá từ ' + stvEsc(w.tu) + '">×</button></div>' +
+      (w.cau ? '<div class="stv-ctx">' + stvCau(w) + '</div>' : '') +
+      '<label class="stv-lb" for="stv-d-' + w.id + '">Nghĩa em đoán</label><input class="stv-inp" id="stv-d-' + w.id + '" data-f="doan" data-v="' + w.id + '" value="' + stvEsc(w.doan) + '" placeholder="Đoán từ ngữ cảnh…" autocomplete="off">' +
+      '<label class="stv-lb" for="stv-n-' + w.id + '">' + (k ? '🔒 Nghĩa tra cứu · mở sau khi em nộp bài' : 'Nghĩa tra cứu') + '</label><input class="stv-inp" id="stv-n-' + w.id + '" data-f="nghia" data-v="' + w.id + '" value="' + stvEsc(w.nghia) + '" placeholder="' + (k ? '' : 'Tra từ điển rồi ghi nghĩa…') + '" autocomplete="off" ' + (k ? 'disabled' : '') + '>' +
+      (!k && w.nghia && w.doan ? '<div class="stv-dg"><span class="stv-lb">Em đoán đúng không?</span>' + [['dung', 'Đúng', 'ok'], ['gan', 'Gần đúng', 'warn'], ['sai', 'Sai', 'bad']].map(([x, t, c]) => '<button class="' + c + ' ' + (w.dg === x ? 'on' : '') + '" data-a="dg" data-v="' + w.id + '|' + x + '">' + t + '</button>').join('') + '</div>' : '') +
+      '<div class="stv-meta"><span class="stv-hop" title="Hộp ôn ' + w.hop + '/5">' + [1, 2, 3, 4, 5].map(i => '<i class="' + (i <= w.hop ? 'on' : '') + '"></i>').join('') + '</span><span>' + (w.maDe ? stvEsc(w.maDe) : 'Tự thêm') + ' · ' + ngayThang(w.them) + '</span></div></div>';
+  };
+  $('stvRoot').innerHTML = '<div class="stv-scrim" data-a="dong"></div><aside class="stv-pan" role="dialog" aria-label="Sổ từ vựng"><div class="stv-hd"><div class="r1"><h3>Sổ từ vựng</h3><button class="stv-x" data-a="dong" aria-label="Đóng sổ từ">×</button></div>' +
+    '<div class="stv-stat"><span><b>' + STV.ds.length + '</b> từ</span><span><b>' + STV.ds.filter(w => !w.nghia).length + '</b> chưa tra</span>' + (dg.length ? '<span>Đoán đúng <b>' + Math.round(dung / dg.length * 100) + '%</b></span>' : '') + '<span><b>' + han + '</b> đến hạn ôn</span></div>' +
+    '<div class="stv-act"><button class="stv-b pri" data-a="on" ' + (coNghia >= 4 ? '' : 'disabled title="Cần ít nhất 4 từ đã tra nghĩa"') + '>Ôn tập' + (han ? ' (' + han + ')' : '') + '</button><button class="stv-b" data-a="excel">Tải Excel</button></div>' +
+    '<div class="stv-loc">' + (b ? '<button class="f ' + (STV.loc === 'bai' ? 'on' : '') + '" data-a="loc" data-v="bai">Bài này</button>' : '') + [['', 'Tất cả'], ['chua', 'Chưa tra'], ['han', 'Đến hạn ôn']].map(([k, t]) => '<button class="f ' + (STV.loc === k ? 'on' : '') + '" data-a="loc" data-v="' + k + '">' + t + '</button>').join('') +
+    '</div><input class="stv-inp" id="stvTim" data-f="tim" value="' + stvEsc(STV.tim) + '" placeholder="Tìm từ hoặc nghĩa…" aria-label="Tìm trong sổ từ"></div>' +
+    '<div class="stv-ds"><details class="stv-them" ' + (STV.ds.length ? '' : 'open') + '><summary>+ Tự thêm từ (ví dụ từ học trên lớp)</summary>' +
+      '<input class="stv-inp" id="stvMTu" placeholder="Từ hoặc cụm từ (tiếng Anh)"><input class="stv-inp" id="stvMDoan" placeholder="Nghĩa em đoán (nếu có)"><input class="stv-inp" id="stvMNghia" placeholder="Nghĩa tra cứu"><input class="stv-inp" id="stvMCau" placeholder="Câu ví dụ / ngữ cảnh (nếu có)">' +
+      '<div><button class="stv-b pri" data-a="them">Lưu từ</button></div></details>' +
+    (khoaBai && STV.loc === 'bai' ? '<div class="stv-ft" style="border:0;background:none;padding:0 2px">Đang làm bài: ghi từ và đoán nghĩa trước. Nộp bài xong ô nghĩa tra cứu sẽ mở. Học xong về nhà em mở sổ điền tiếp cũng được.</div>' : '') +
+    (ds.length ? ds.map(the).join('') : '<div class="stv-empty">' + (STV.loc === 'bai' ? 'Bài này chưa có từ nào. Gặp từ mới, em bôi đen từ đó rồi bấm “+ Sổ từ”.' : (STV.ds.length ? 'Không có từ nào khớp.' : 'Sổ còn trống. Khi làm bài gặp từ mới, em bôi đen từ đó rồi bấm “+ Sổ từ”. Từ học trên lớp thì em tự thêm ở ô phía trên.')) + '</div>') + '</div>' +
+    '<div class="stv-ft">Mọi lúc em đều mở được sổ để điền nghĩa. Tra đủ nghĩa các từ của một bài: +' + 5 + ' củi · ôn xong một lượt mỗi ngày: +5 củi.</div></aside>';
+}
+$('stvRoot').addEventListener('click', async e => {
+  const t = e.target.closest('[data-a]'); if (!t) return;
+  const a = t.dataset.a, v = t.dataset.v;
+  if (a === 'dong') return stvDong();
+  if (a === 'noi') return stvNoi(v);
+  if (a === 'loc') { STV.loc = v; return stvVe(); }
+  if (a === 'xoa') {
+    const w = STV.ds.find(x => x.id === v); if (!w) return;
+    if (!await hoi({ eyebrow: 'Sổ từ', tieuDe: 'Xoá “' + w.tu + '”?', co: 'Xoá', khong: 'Giữ lại' })) return;
+    STV.ds = STV.ds.filter(x => x.id !== v); stvCache(); stvVe(); goi('xoaSoTu', [S.ma, S.pin, v]).catch(console.error); return;
+  }
+  if (a === 'dg') { const [id, k] = v.split('|'), w = STV.ds.find(x => x.id === id); w.dg = k; stvLuu(w); stvVe(); stvKiemThuongTra(w.maDe); return; }
+  if (a === 'them') {
+    const tu = $('stvMTu').value.trim(); if (!tu) { $('stvMTu').focus(); return; }
+    stvThem({ tu: tu, doan: $('stvMDoan').value.trim(), nghia: $('stvMNghia').value.trim(), cau: $('stvMCau').value.trim(), maDe: '' }); return;
+  }
+  if (a === 'excel') return stvExcel();
+  if (a === 'on') { STV.ve = dangO(); stvDong(); stvOnMo(); return; }
+});
+$('stvRoot').addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset.f === 'tim') { STV.tim = t.value; const p = t.selectionStart; stvVe(); const n = $('stvTim'); n.focus(); n.setSelectionRange(p, p); return; }
+  if (t.dataset.f === 'doan' || t.dataset.f === 'nghia') {
+    const w = STV.ds.find(x => x.id === t.dataset.v); if (!w) return;
+    w[t.dataset.f] = t.value; if (t.dataset.f === 'nghia') w.han = Math.min(w.han || Date.now(), Date.now());
+    stvLuu(w);
+    clearTimeout(STV.hv); STV.hv = setTimeout(() => { const id = t.id, p = t.selectionStart; if (!STV.mo) return; stvVe(); const n = document.getElementById(id); if (n) { n.focus(); n.setSelectionRange(p, p); } }, 1000);
+  }
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && STV.mo) stvDong(); });
+/** Tra đủ nghĩa + tự chấm mọi từ của 1 bài (đã nộp) → +5 củi, mỗi bài 1 lần */
+async function stvKiemThuongTra(ma) {
+  const dsMa = ma ? [ma] : [...new Set(STV.ds.map(w => w.maDe).filter(Boolean))];
+  for (const m of dsMa) {
+    if (STV.thuong.has('TU:TRA:' + m)) continue;
+    const ds = STV.ds.filter(w => w.maDe === m);
+    if (!ds.length || ds.some(w => !w.nghia || !w.dg || stvKhoa(w))) continue;
+    STV.thuong.add('TU:TRA:' + m);
+    Object.keys(STV.henLuu).forEach(id => { clearTimeout(STV.henLuu[id]); delete STV.henLuu[id]; });
+    try {
+      await goi('luuSoTu', [S.ma, S.pin, ds]);
+      const r = await goi('thuongSoTu', [S.ma, S.pin, 'tra', m]);
+      if (r.ok) { toast('+5 củi · em đã tra đủ nghĩa các từ của bài ' + m); stvCapNhatLua(); } else STV.thuong.delete('TU:TRA:' + m);
+    } catch (e) { STV.thuong.delete('TU:TRA:' + m); console.error(e); }
+  }
+}
+function stvCapNhatLua() { goi('capNhat', [S.ma, S.pin]).then(r => { S.lua = r.lua; S.tt = r.tienTrinh || S.tt; if (dangO() === 'scr-list') renderList(); }).catch(console.error); }
+
+/* ---------- tải về Excel ---------- */
+function stvNapXlsx() {
+  if (window.XLSX) return Promise.resolve();
+  return new Promise((ok, loi) => { const s = document.createElement('script'); s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js'; s.onload = ok; s.onerror = loi; document.head.append(s); });
+}
+async function stvExcel() {
+  if (!STV.ds.length) { toast('Sổ từ đang trống'); return; }
+  const DG = { dung: 'Đúng', gan: 'Gần đúng', sai: 'Sai' };
+  const ngay = t => { const d = new Date(t); return hh(d.getDate()) + '/' + hh(d.getMonth() + 1) + '/' + d.getFullYear(); };
+  const rows = [['Từ', 'Nghĩa em đoán', 'Nghĩa tra cứu', 'Đoán đúng?', 'Câu ngữ cảnh', 'Bài', 'Ngày ghi', 'Hộp ôn (1–5)', 'Ôn lần tới']]
+    .concat(STV.ds.slice().sort((a, b) => a.them - b.them).map(w => [w.tu, w.doan, w.nghia, DG[w.dg] || '', w.cau, w.maDe || 'Tự thêm', ngay(w.them), w.hop, w.nghia ? ngay(w.han) : '']));
+  const ten = 'SoTu_' + S.ma + '_' + stvHom();
+  busy('Đang tạo file…');
+  try {
+    await stvNapXlsx();
+    const ws = XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols'] = [{ wch: 18 }, { wch: 24 }, { wch: 28 }, { wch: 11 }, { wch: 60 }, { wch: 16 }, { wch: 11 }, { wch: 12 }, { wch: 11 }];
+    const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, 'Sổ từ');
+    XLSX.writeFile(wb, ten + '.xlsx');
+  } catch (e) { // không tải được thư viện: xuất CSV (Excel mở được, giữ dấu tiếng Việt)
+    const csv = '﻿' + rows.map(r => r.map(x => '"' + String(x == null ? '' : x).replace(/"/g, '""') + '"').join(',')).join('\r\n');
+    const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); a.download = ten + '.csv'; document.body.append(a); a.click(); a.remove();
+  } finally { busy(false); }
+}
+
+/* ---------- ôn tập ---------- */
+const ON_KIEU = { the: 'Thẻ lật', chon: 'Chọn nghĩa đúng', dien: 'Điền từ vào câu', nghe: 'Nghe và viết', noi: 'Nối từ với nghĩa' };
+const stvXao = a => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+const stvTim = id => STV.ds.find(w => w.id === id);
+function stvOnMo() {
+  const nay = Date.now(), co = STV.ds.filter(w => w.nghia);
+  let ds = co.filter(w => w.han <= nay);
+  if (ds.length < 4) ds = ds.concat(co.filter(w => ds.indexOf(w) < 0).sort((a, b) => a.hop - b.hop || a.han - b.han)).slice(0, Math.max(4, ds.length));
+  ds = stvXao(ds.slice(0, 8));
+  const bai = [];
+  if (ds.length >= 4) bai.push({ k: 'noi', ids: ds.slice(0, 4).map(w => w.id) });
+  ds.forEach(w => {
+    const k = w.hop <= 1 ? 'the' : w.hop === 2 ? 'chon' : w.hop === 3 ? 'dien' : w.hop === 4 ? 'nghe' : 'dien';
+    if (k === 'dien' && !(w.cau && new RegExp(stvRe(w.tu), 'i').test(w.cau))) bai.push({ k: 'nghe', id: w.id }); else bai.push({ k, id: w.id });
+    if (w.hop <= 1) bai.push({ k: 'chon', id: w.id });
+  });
+  STV.on = { bai, i: 0, dung: 0, sai: 0, kq: {}, ghi: {}, doi: new Set(), len: new Set() };
+  show('scr-on'); stvOnVe();
+}
+$('onBack').onclick = () => stvOnXong(true);
+BACK['scr-on'] = () => stvOnXong(true);
+function stvOnXong(dung) {
+  const O = STV.on; STV.on = null;
+  if (O && O.doi.size) goi('luuSoTu', [S.ma, S.pin, [...O.doi].map(stvTim).filter(Boolean)]).catch(console.error);
+  stvCache();
+  const ve = STV.ve && STV.ve !== 'scr-on' ? STV.ve : 'scr-list';
+  if (ve === 'scr-list') veDanhSach(); else show(ve);
+}
+function stvOnVe() {
+  const O = STV.on, b = O.bai[O.i], box = $('onMain');
+  $('onProg').innerHTML = b ? '<span>' + (O.i + 1) + '/' + O.bai.length + '</span><div class="t"><i style="width:' + (O.i / O.bai.length * 100) + '%"></i></div>' : '';
+  if (!b) {
+    const k = 'TU:ON:' + stvHom(), duoc = !STV.thuong.has(k);
+    if (duoc && O.thuong == null) {
+      O.thuong = 'cho'; STV.thuong.add(k);
+      goi('luuSoTu', [S.ma, S.pin, [...O.doi].map(stvTim).filter(Boolean)]).then(() => { O.doi.clear(); return goi('thuongSoTu', [S.ma, S.pin, 'on']); })
+        .then(r => { O.thuong = r.ok; if (r.ok) stvCapNhatLua(); if (STV.on === O) stvOnVe(); }).catch(e => { console.error(e); STV.thuong.delete(k); });
+    }
+    box.innerHTML = '<div class="on-wrap"><div class="on-ex on-end"><svg viewBox="0 0 24 24" width="64" height="64" fill="none" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 1 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-6 1-10Z" fill="var(--brand)"/></svg><h2 style="font-size:32px">Xong lượt ôn!</h2>' +
+      '<p style="margin:0">Đúng <b>' + O.dung + '</b> · sai <b>' + O.sai + '</b>. Từ sai đã quay về hộp 1 để ôn lại sớm.</p>' +
+      (O.thuong === true || O.thuong === 'cho' ? '<span class="stv-chip ok">+5 củi · ôn hôm nay</span>' : '<span class="stv-chip">Hôm nay em đã nhận củi ôn tập rồi</span>') +
+      '<div class="on-row"><button class="btn btn-ghost" data-a="so">Mở sổ từ</button><button class="btn btn-primary" data-a="xong">Xong</button></div></div></div>';
+    return;
+  }
+  const kq = O.kq[O.i];
+  const tiep = kq != null ? '<div class="on-row"><span class="on-kq ' + (kq ? 'ok' : 'bad') + '">' + (kq ? 'Chính xác!' : 'Chưa đúng') + '</span><button class="btn btn-primary" data-a="tiep" style="margin-left:auto">Tiếp →</button></div>' : '';
+  const loa = w => '<button class="stv-loa" data-a="noi" data-v="' + stvEsc(w.tu) + '" aria-label="Nghe phát âm">' + STV_LOA + '</button>';
+  let h = '';
+  if (b.k === 'noi') {
+    const ws = b.ids.map(stvTim), g = O.ghi[O.i] || (O.ghi[O.i] = { trai: stvXao(b.ids), phai: stvXao(b.ids), xong: {}, sel: null, sai: null });
+    h = '<div class="on-kind">' + ON_KIEU.noi + '</div><div style="color:var(--ink-2)">Bấm một từ, rồi bấm nghĩa của nó.</div><div class="on-match"><div>' +
+      g.trai.map(id => '<button class="on-mt ' + (g.xong[id] ? 'done' : '') + ' ' + (g.sel === id ? 'sel' : '') + '" data-a="mt" data-v="l|' + id + '" ' + (g.xong[id] ? 'disabled' : '') + ' style="font-family:var(--font-essay);font-weight:600;font-size:17px">' + stvEsc(stvTim(id).tu) + '</button>').join('') + '</div><div>' +
+      g.phai.map(id => '<button class="on-mt ' + (g.xong[id] ? 'done' : '') + ' ' + (g.sai === id ? 'sai' : '') + '" data-a="mt" data-v="r|' + id + '" ' + (g.xong[id] ? 'disabled' : '') + '>' + stvEsc(stvTim(id).nghia) + '</button>').join('') + '</div></div>' + tiep;
+  } else {
+    const w = stvTim(b.id);
+    if (b.k === 'the') h = '<div class="on-kind">' + ON_KIEU.the + '</div><div class="on-flip ' + (O.ghi[O.i] ? 'lat' : '') + '" data-a="lat"><div class="card"><div class="mat"><div class="on-big">' + stvEsc(w.tu) + '</div>' + loa(w) + (w.cau ? '<div class="stv-ctx" style="font-size:16px">' + stvCau(w) + '</div>' : '') + '</div><div class="mat sau"><div class="on-big" style="font-size:26px">' + stvEsc(w.nghia) + '</div><div style="font-size:13px;color:var(--ink-2)">Lúc đầu em đoán: ' + stvEsc(w.doan || '—') + '</div></div></div></div>' +
+      (!O.ghi[O.i] ? '<div class="on-row"><button class="btn btn-primary" data-a="lat">Lật thẻ</button></div>' : kq == null ? '<div class="on-row"><span>Em nhớ từ này chưa?</span><button class="btn btn-ghost" data-a="tutin" data-v="0" style="margin-left:auto">Chưa nhớ</button><button class="btn btn-primary" data-a="tutin" data-v="1">Nhớ rồi</button></div>' : '') + tiep;
+    else if (b.k === 'chon') {
+      const g = O.ghi[O.i] || (O.ghi[O.i] = { pa: stvXao([w].concat(stvXao(STV.ds.filter(x => x.id !== w.id && x.nghia && stvChuan(x.nghia) !== stvChuan(w.nghia))).slice(0, 3))).map(x => x.id) });
+      h = '<div class="on-kind">' + ON_KIEU.chon + '</div><div class="on-row"><div class="on-big">' + stvEsc(w.tu) + '</div>' + loa(w) + '</div><div class="on-opts">' +
+        g.pa.map(id => { let c = ''; if (kq != null) { if (id === w.id) c = 'ok'; else if (g.chon === id) c = 'bad'; } return '<button class="on-opt ' + c + '" data-a="chon" data-v="' + id + '" ' + (kq != null ? 'disabled' : '') + '>' + stvEsc(stvTim(id).nghia) + '</button>'; }).join('') + '</div>' + tiep;
+    } else {
+      const g = O.ghi[O.i] || (O.ghi[O.i] = { v: '' });
+      const de = b.k === 'dien' ? '<div style="color:var(--ink-2)">Nghĩa: <b>' + stvEsc(w.nghia) + '</b></div><div class="stv-ctx" style="font-size:19px">' + stvEsc(w.cau).replace(new RegExp(stvRe(stvEsc(w.tu)), 'i'), '<b style="font-style:normal;letter-spacing:2px">' + stvEsc(w.tu[0]) + '_____</b>') + '</div>'
+        : '<div class="on-row"><button class="btn btn-primary" data-a="noi" data-v="' + stvEsc(w.tu) + '">▶ Nghe từ</button><span style="color:var(--ink-2)">Nghĩa: <b>' + stvEsc(w.nghia) + '</b></span></div>';
+      h = '<div class="on-kind">' + ON_KIEU[b.k] + '</div>' + de + '<form class="on-row" id="onForm"><input class="stv-inp" id="onGo" style="max-width:320px" autocomplete="off" autocapitalize="off" spellcheck="false" value="' + stvEsc(g.v) + '" ' + (kq != null ? 'disabled' : '') + ' placeholder="' + (b.k === 'dien' ? 'Gõ từ còn thiếu' : 'Viết từ em nghe được') + '"><button class="btn btn-primary" ' + (kq != null ? 'disabled' : '') + '>Kiểm tra</button></form>' +
+        (kq === false ? '<div>Đáp án: <b>' + stvEsc(w.tu) + '</b></div>' : '') + tiep;
+    }
+  }
+  box.innerHTML = '<div class="on-wrap"><div class="on-ex">' + h + '</div></div>';
+  const go = $('onGo'); if (go && kq == null) go.focus();
+}
+function stvOnCham(ok, ids) {
+  const O = STV.on; O.kq[O.i] = ok; ok ? O.dung++ : O.sai++;
+  [].concat(ids).forEach(id => {
+    const w = stvTim(id); if (!w) return;
+    if (ok && O.len.has(id)) return; // mỗi lượt ôn, một từ chỉ lên hộp 1 lần
+    O.len.add(id);
+    w.hop = ok ? Math.min(5, (w.hop || 1) + 1) : 1; w.han = Date.now() + STV_HOP[w.hop] * STV_NGAY; O.doi.add(id); });
+  stvCache(); stvOnVe();
+  if (ok) setTimeout(() => { if (STV.on === O && O.kq[O.i] === true) { O.i++; stvOnVe(); } }, 900);
+}
+$('onMain').addEventListener('click', e => {
+  const t = e.target.closest('[data-a]'); if (!t || !STV.on) return;
+  const O = STV.on, a = t.dataset.a, v = t.dataset.v;
+  if (a === 'noi') { e.stopPropagation(); return stvNoi(v); }
+  if (a === 'tiep') { O.i++; return stvOnVe(); }
+  if (a === 'xong') return stvOnXong();
+  if (a === 'so') { stvOnXong(); setTimeout(() => stvMo(''), 50); return; }
+  if (a === 'lat') { if (e.target.closest('.stv-loa')) return; O.ghi[O.i] = 1; return stvOnVe(); }
+  if (a === 'tutin') return stvOnCham(v === '1', O.bai[O.i].id);
+  if (a === 'chon') { const b = O.bai[O.i]; O.ghi[O.i].chon = v; return stvOnCham(v === b.id, b.id); }
+  if (a === 'mt') {
+    const g = O.ghi[O.i], [s, id] = v.split('|');
+    if (s === 'l') { g.sel = g.sel === id ? null : id; g.sai = null; return stvOnVe(); }
+    if (!g.sel) return;
+    if (g.sel === id) { g.xong[id] = 1; g.sel = null; if (Object.keys(g.xong).length === O.bai[O.i].ids.length) return stvOnCham(!g.loi, O.bai[O.i].ids); }
+    else { g.sai = id; g.loi = 1; g.sel = null; }
+    return stvOnVe();
+  }
+});
+$('onMain').addEventListener('submit', e => {
+  e.preventDefault(); const O = STV.on; if (!O) return;
+  const b = O.bai[O.i], w = stvTim(b.id), v = $('onGo').value; O.ghi[O.i].v = v;
+  stvOnCham(stvChuan(v) === stvChuan(w.tu), w.id);
+});
 </script>
 </body>
 </html>
