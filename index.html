@@ -5440,7 +5440,7 @@ function knP3() {
 }
 function knTK(D) {
   const pc = Math.round(D.pct * 100), d = KN.d;
-  const rows = [[((d.pl && d.pl.nhan) || 'Chọn nhanh') + ' · chọn đáp án', D.pl, knPlDs(d).length, D.xong.pl, knPlDs(d).length], ['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3], ['Pillar 3 · trả lời đúng (điểm cộng)', D.dap, D.dapToi, true, D.dapToi]].filter(x => x[4]);
+  const rows = [[((d.pl && d.pl.nhan) || 'Chọn nhanh') + ' · chọn đáp án', D.pl, knPlDs(d).length, D.xong.pl, knPlDs(d).length], ['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3], ['Pillar 3 · trả lời đúng (điểm cộng)', D.dap, D.dapToi, D.xong.p3, D.dapToi]].filter(x => x[4]);
   const daNop = KN.ro;
   return '<div class="k-ph"><div><div class="eyebrow">Tổng kết</div><h1>' + (daNop ? 'Kết quả bài đã nộp' : 'Củi của bài về nhà') + '</h1></div></div>' +
     (KN.vuaNop ? '<div class="lua-gain" id="knCuiMoi" hidden></div>' : '') +
