@@ -1053,6 +1053,15 @@ mark.k-seg.xong{background:var(--ok-soft);box-shadow:inset 0 -2px 0 var(--ok)}
 .k-pen .ic-tu{background:var(--stv-soft,#E1ECFF);color:var(--stv,#2F6FDB);border-radius:4px;padding:0 4px;font-weight:700}
 .k-pen[data-v=tu].on{border-color:var(--stv,#2F6FDB)}
 .k-pl{display:flex;gap:8px;flex-wrap:wrap}.k-pl .k-op{width:auto;min-width:72px;justify-content:center}
+.k-dap{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.k-dn{border:1px solid var(--line);background:var(--surface-2);border-radius:var(--r-sm);padding:6px 12px;font-size:13.5px;font-weight:700;min-width:44px}
+.k-dn:hover:not([disabled]){border-color:var(--ink-2)}
+.k-dn.sel{background:var(--night);color:var(--on-night);border-color:var(--night)}
+.k-dn.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.k-dn.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.k-dn[disabled]{cursor:default}
+.k-dapi{max-width:260px}.k-dapi.ok{border-color:var(--ok);background:var(--ok-soft)}.k-dapi.bad{border-color:var(--bad);background:var(--bad-soft)}
+.k-qcol .k-q[data-q]:not(.found){cursor:pointer}
 
 /* ====== SỔ TỪ VỰNG ====== */
 :root{--stv:#2F6FDB;--stv-soft:#E1ECFF}
@@ -5081,6 +5090,23 @@ function knKhop2B(text, g) {
     return String(x[0]).split('/').some(function (s) { return knNormList(s).filter(function (n) { return !KN_STOP[n]; }).join(' ') === a; });
   });
 }
+/** Kiểu ô trả lời của 1 câu Pillar 3: { k:'nut', pa:[…] } hoặc { k:'chu' } (null nếu không có đáp án) */
+function knKieuDap(b, q) {
+  if (!q.da) return null;
+  var m = String(q.meta || ''), nh = (b.nhom || []).filter(function (g) { return g.tu <= q.n && q.n <= g.den; })[0], hd = nh ? nh.hd : '';
+  if (/^T\/F\/NG$/i.test(m) || /true|false|not given/i.test(m)) return { k: 'nut', pa: ['TRUE', 'FALSE', 'NOT GIVEN'] };
+  if (/^Y\/N\/NG$/i.test(m) || /\byes\b/i.test(m)) return { k: 'nut', pa: ['YES', 'NO', 'NOT GIVEN'] };
+  if (q.pa && q.pa.length) return { k: 'nut', pa: q.pa.map(function (x, i) { return 'ABCDEFGH'.charAt(i); }) };
+  if (/đoạn nào/i.test(m)) { var ds = (b.doan || []).map(function (d) { return d[0]; }).filter(Boolean); if (ds.length) return { k: 'nut', pa: ds }; }
+  if (/ghép/i.test(m)) { var lc = []; (hd.match(/(?:^|·)\s*([A-H])[.)]\s/g) || []).forEach(function (x) { var c = x.replace(/[^A-H]/g, ''); if (lc.indexOf(c) < 0) lc.push(c); }); if (lc.length < 2) lc = ['A', 'B', 'C', 'D']; return { k: 'nut', pa: lc }; }
+  if (/^[A-H]$/.test(String(q.da).trim())) return { k: 'nut', pa: ['A', 'B', 'C', 'D'] };
+  return { k: 'chu' };
+}
+function knDungDap(q, v) {
+  var chuan = function (s) { return String(s || '').toLowerCase().replace(/[’']/g, "'").replace(/[^a-z0-9à-ỹ' ]+/g, ' ').replace(/\s+/g, ' ').trim(); };
+  v = chuan(v); if (!v) return false;
+  return String(q.da || '').split(/\s*\/\s*|\s+or\s+|\s+hoặc\s+/i).some(function (d) { d = chuan(d.replace(/\([^)]*\)/g, '')); return d && (d === v || (d.length === 1 && v.charAt(0) === d && v.length === 1)); });
+}
 function knPlDs(de) { return (de.pl && de.pl.ds) || []; }
 function knTongP3(de) { return de.p3.bai.reduce(function (s, b) { return s + b.ds.length; }, 0); }
 /** Điểm + củi của một bài (st: trạng thái bài làm). kiemLai = true: chấm lại phần highlight (máy chủ dùng) */
@@ -5093,10 +5119,11 @@ function knDiem(de, st, kiemLai) {
   if (st.p1done) de.p1.ds.forEach(function (q) { var r = knChamTuKhoa('q:p1:' + q.n, q, marks); p1 += (r.kw && r.kw.pass ? 1 : 0) + (r.an.pass ? 1 : 0); });
   var a = 0;
   if (st.a2done) de.a2.ds.forEach(function (q) { var r = a2[q.n] || {}; a += (r.L === q.da ? 1 : 0) + ((q.c || []).indexOf(r.c) > -1 ? 1 : 0); });
-  var p3 = 0, p3xong = 0;
+  var p3 = 0, p3xong = 0, dap = 0, dapToi = 0, dapSt = st.dap;
   de.p3.bai.forEach(function (b) {
     b.ds.forEach(function (q) {
       var qk = 'b' + b.k + '|' + q.n, l = loc[qk];
+      if (dapSt && knKieuDap(b, q)) { dapToi++; if (knDungDap(q, dapSt[qk])) dap++; }
       if (!l || !l.xong) return;
       p3xong++;
       if (l.gave) return;
@@ -5106,12 +5133,12 @@ function knDiem(de, st, kiemLai) {
   });
   var b2xong = de.b2.ds.filter(function (x) { var r = b2[x.n] || {}; return String(r.t1 || '').trim() && String(r.t2 || '').trim(); }).length;
   var tong3 = knTongP3(de);
-  var toiDa = plDs.length + de.p1.ds.length * 2 + de.a2.ds.length * 2 + tong3, dat = pl + p1 + a + p3, pct = toiDa ? dat / toiDa : 0;
+  var toiDa = plDs.length + de.p1.ds.length * 2 + de.a2.ds.length * 2 + tong3 + dapToi, dat = pl + p1 + a + p3 + dap, pct = toiDa ? dat / toiDa : 0;
   var xong = { pl: !plDs.length || !!st.pldone, p1: !de.p1.ds.length || !!st.p1done, a2: !de.a2.ds.length || !!st.a2done, b2: !de.b2.ds.length || (b2xong === de.b2.ds.length && !!st.b2rev), p3: p3xong === tong3 };
   var hoanThanh = xong.pl && xong.p1 && xong.a2 && xong.b2 && xong.p3;
   var muc = KN_CFG.CUI_DUNG.filter(function (x) { return pct >= x[0] - 1e-9; })[0];
   return {
-    pl: pl, p1: p1, a2: a, p3: p3, p3xong: p3xong, tong3: tong3, b2xong: b2xong, dat: Math.round(dat * 10) / 10, toiDa: toiDa, pct: pct, xong: xong, hoanThanh: hoanThanh,
+    pl: pl, p1: p1, a2: a, p3: p3, dap: dap, dapToi: dapToi, p3xong: p3xong, tong3: tong3, b2xong: b2xong, dat: Math.round(dat * 10) / 10, toiDa: toiDa, pct: pct, xong: xong, hoanThanh: hoanThanh,
     cuiHT: hoanThanh ? KN_CFG.CUI_HOAN_THANH : 0, cuiDung: hoanThanh && muc ? muc[1] : 0,
   };
 }
@@ -5136,7 +5163,7 @@ function knDiem(de, st, kiemLai) {
 /* ====== BÀI KỸ NĂNG ====== */
 const KN = { d: null, st: null, ro: false, ve: 'scr-list', ma: '', tx: {}, nap: null, luuHen: null, ganNhat: 0 };
 const KN_STEPS = [['gt', 'Bắt đầu', 'Hướng dẫn'], ['pl', 'Chọn nhanh', 'Phân loại'], ['p1', 'Pillar 1', 'Gạch từ khóa'], ['a2', 'Pillar 2A', 'Chọn paraphrase'], ['b2', 'Pillar 2B', 'Tự đoán'], ['p3', 'Pillar 3', 'Tìm trong bài đọc'], ['tk', 'Tổng kết', 'Củi & nộp bài']];
-const knMoi = () => ({ v: 1, step: 'gt', pen: 'gach', pl: {}, pldone: false, marks: {}, seg: {}, segN: 1, p1done: false, a2: {}, a2done: false, b2: {}, b2rev: false, bai: 0, mtab: 'cau', cur: {}, loc: {}, hl: {}, t: {}, giay: 0, _t: 0 });
+const knMoi = () => ({ v: 1, step: 'gt', pen: 'gach', pl: {}, pldone: false, dap: {}, marks: {}, seg: {}, segN: 1, p1done: false, a2: {}, a2done: false, b2: {}, b2rev: false, bai: 0, mtab: 'cau', cur: {}, loc: {}, hl: {}, t: {}, giay: 0, _t: 0 });
 const knKey = () => 'kn_' + S.ma + '_' + KN.ma;
 const knEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const knFmt = s => { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
@@ -5386,11 +5413,16 @@ function knP3() {
     const chip = l.xong ? (l.gave ? '<span class="k-chip bad">Đã xem đáp án</span>' : '<span class="k-chip ok">✓ ' + vtTxt + (l.tries ? ' · sau ' + l.tries + ' lần sai' : '') + '</span>')
       : ro ? '<span class="k-chip bad">Chưa tìm được</span>'
       : cur === q.n ? '<span class="k-chip act">Đang tìm · đã highlight ' + soHl + ' từ</span><button class="k-btn sm pri" data-a="kt3" data-v="' + qk + '">Kiểm tra</button>'
-      : '<button class="k-btn sm" data-a="chonq" data-v="' + qk + '">Tìm câu này</button>';
+      : '';
+    const kd = knKieuDap(b, q), v = (st.dap || {})[qk] || '', khoaDap = ro || l.xong;
+    const dapHtml = !kd ? '' : '<div class="k-dap">' + (kd.k === 'nut'
+      ? kd.pa.map(x => { let c = ''; if (khoaDap) { if (knDungDap(q, x)) c = 'ok'; else if (v === x) c = 'bad'; } else if (v === x) c = 'sel';
+          return '<button class="k-dn ' + c + '" data-a="dap" data-v="' + qk + '|' + knEsc(x) + '" ' + (khoaDap ? 'disabled' : '') + '>' + knEsc(x) + '</button>'; }).join('')
+      : '<input class="k-inp k-dapi ' + (khoaDap && v ? (knDungDap(q, v) ? 'ok' : 'bad') : '') + '" data-dap="' + qk + '" value="' + knEsc(v) + '" placeholder="Đáp án của em" autocomplete="off" autocapitalize="off" spellcheck="false" ' + (khoaDap ? 'disabled' : '') + '>') + '</div>';
     return dau + '<div class="k-q ' + (!ro && cur === q.n && !l.xong ? 'act' : '') + ' ' + (l.xong && !l.gave ? 'found' : '') + '" data-q="' + qk + '"><div class="k-qh"><button class="k-qn" data-a="chonq" data-v="' + qk + '">' + q.n + '</button><div class="k-qt">' + (q.meta ? '<span class="k-qm">' + knEsc(q.meta) + '</span>' : '') +
       knWords(sc, q.de, (k, n, idx) => { const rr = { c: [] }; if (r && r.cls[k]) rr.c.push(r.cls[k]); if (idx in ppQ) { rr.c.push('pp'); if (ppQ[idx]) rr.sup = ppQ[idx]; } return rr; }) + '</div></div>' +
       (q.pa ? '<ol class="k-pa3" type="A">' + q.pa.map(x => '<li>' + knEsc(x) + '</li>').join('') + '</ol>' : '') +
-      '<div class="k-sub"><div class="k-chips">' + chip + (!ro && !l.xong && (l.tries || 0) >= KN_CFG.P3_SAI_HIEN_DA ? '<button class="k-btn sm" data-a="gave" data-v="' + qk + '">Xem đáp án</button>' : '') + '</div>' +
+      '<div class="k-sub">' + dapHtml + '<div class="k-chips">' + chip + (!ro && !l.xong && (l.tries || 0) >= KN_CFG.P3_SAI_HIEN_DA ? '<button class="k-btn sm" data-a="gave" data-v="' + qk + '">Xem đáp án</button>' : '') + '</div>' +
       (xem ? '<div class="k-kq">' + knKqDong(r) + '</div><dl class="k-rv"><dt>Anchor</dt><dd>' + (q.an ? knEsc(q.an) : '<span class="k-m">Không có Anchor rõ' + (q.anNote ? ' (' + knEsc(q.anNote) + ')' : '') + '</span>') + '</dd><dt>Vị trí</dt><dd>' + vtTxt + '</dd><dt>Bài viết thật</dt><dd class="k-ppl">' +
         (knCapPairs(q.cap).length ? knCapPairs(q.cap).map((p, i) => '<span><b>' + q.n + '.' + (i + 1) + '</b>' + knEsc(p.q) + ' ' + (p.trai ? '≠' : '=') + ' ' + knEsc(p.p) + '</span>').join('') : '<span class="k-m">Khớp nguyên văn</span>') + '</dd>' +
         (knCapNotes(q.cap).length ? '<dt>Ghi chú</dt><dd>' + knCapNotes(q.cap).map(knEsc).join('<br>') + '</dd>' : '') + (q.da ? '<dt>Đáp án</dt><dd>' + knEsc(q.da) + '</dd>' : '') + '</dl>' : '') +
@@ -5399,7 +5431,7 @@ function knP3() {
   const t = st.t[bk] || { s: 0 };
   return '<div class="k-ph"><div><div class="eyebrow">Pillar 3 · ' + KN.d.p3.bai.length + ' bài đọc</div><h1>Tìm từ khóa trong bài đọc</h1></div>' + (ro ? '' : '<span class="k-timer" id="knTmr" title="Thời gian làm bài này">⏱ ' + knFmt(t.s) + '</span>') + '</div>' +
     '<div class="k-btabs">' + KN.d.p3.bai.map(x => { const f = x.ds.filter(q => (st.loc['b' + x.k + '|' + q.n] || {}).xong).length; return '<button class="k-bt ' + (x.k === b.k ? 'on' : '') + ' ' + (xongBai(x) ? 'k-xong' : '') + '" data-a="bai" data-v="' + x.k + '">Bài ' + x.k + ' <span class="c">' + f + '/' + x.ds.length + (x.lv ? ' · ' + knEsc(x.ielts ? 'IELTS' : x.lv) : '') + '</span></button>'; }).join('') + '</div>' +
-    (ro ? '' : '<div class="k-note">Với mỗi câu: <b>gạch từ khóa, khoanh Anchor</b> trong câu hỏi → thả neo ở Anchor, <b>bôi đen tất cả từ khóa</b> em tìm thấy trong bài để highlight' + (knCoarse() ? ' (chạm vào từng chữ, các chữ liền nhau tự nối thành một cụm)' : '') + ', rồi bấm <b>Kiểm tra</b>. Web chỉ báo đúng hoặc chưa đúng.</div>') +
+    (ro ? '' : '<div class="k-note">Với mỗi câu: <b>gạch từ khóa, khoanh Anchor</b> trong câu hỏi → thả neo ở Anchor, <b>bôi đen tất cả từ khóa</b> em tìm thấy trong bài để highlight' + (knCoarse() ? ' (chạm vào từng chữ, các chữ liền nhau tự nối thành một cụm)' : '') + ', rồi bấm <b>Kiểm tra</b>. Web chỉ báo đúng hoặc chưa đúng. Chọn hoặc điền đáp án cho câu là điểm cộng, đáp án hiện sau khi em tìm đúng vị trí.</div>') +
     knPens('Bút dùng cho câu hỏi. Trong bài đọc: bôi đen cụm từ là highlight, bấm vào đoạn đã highlight để bỏ.', st.mtab === 'bai' ? 'hm' : '') +
     '<div class="k-mtabs" role="tablist"><button class="' + (st.mtab === 'cau' ? 'on' : '') + '" data-a="mtab" data-v="cau">Câu hỏi</button><button class="' + (st.mtab === 'bai' ? 'on' : '') + '" data-a="mtab" data-v="bai">Bài đọc</button></div>' +
     '<div class="k-p3" data-m="' + st.mtab + '">' + baiHtml + qs + '</div>' +
@@ -5408,7 +5440,7 @@ function knP3() {
 }
 function knTK(D) {
   const pc = Math.round(D.pct * 100), d = KN.d;
-  const rows = [[((d.pl && d.pl.nhan) || 'Chọn nhanh') + ' · chọn đáp án', D.pl, knPlDs(d).length, D.xong.pl, knPlDs(d).length], ['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3]].filter(x => x[4]);
+  const rows = [[((d.pl && d.pl.nhan) || 'Chọn nhanh') + ' · chọn đáp án', D.pl, knPlDs(d).length, D.xong.pl, knPlDs(d).length], ['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3], ['Pillar 3 · trả lời đúng (điểm cộng)', D.dap, D.dapToi, true, D.dapToi]].filter(x => x[4]);
   const daNop = KN.ro;
   return '<div class="k-ph"><div><div class="eyebrow">Tổng kết</div><h1>' + (daNop ? 'Kết quả bài đã nộp' : 'Củi của bài về nhà') + '</h1></div></div>' +
     (KN.vuaNop ? '<div class="lua-gain" id="knCuiMoi" hidden></div>' : '') +
@@ -5492,7 +5524,12 @@ function knApChon() {
 document.addEventListener('mouseup', () => { if (dangO() === 'scr-kn') setTimeout(knApChon, 0); });
 $('knMain').addEventListener('click', async e => {
   if (knKeo) return;
-  const elx = e.target.closest('[data-a],[data-w]'); if (!elx) return;
+  const elx = e.target.closest('[data-a],[data-w],input'); 
+  if (!elx || elx.tagName === 'INPUT') { // bấm vào thẻ câu hỏi (Pillar 3) = chọn câu đó để tìm
+    const qd = !KN.ro && e.target.closest('.k-q[data-q]'), st = KN.st;
+    if (qd && !(st.loc[qd.dataset.q] || {}).xong) { const [bk, n] = qd.dataset.q.split('|'); if (st.cur[bk] !== +n) { st.cur[bk] = +n; knVe(); const i = $('knMain').querySelector('[data-dap="' + qd.dataset.q + '"]'); if (elx && i) i.focus(); } }
+    return;
+  }
   if (elx.dataset.w) {
     if (KN.st.pen === 'tu') { if (!KN.ro && knCoarse() && typeof stvThemTuChu === 'function') stvThemTuChu(elx); return; }
     return knDanhDau([elx.dataset.w], false);
@@ -5507,6 +5544,7 @@ $('knMain').addEventListener('click', async e => {
     if (!await hoi({ eyebrow: 'Pillar 1', tieuDe: 'Nộp Pillar 1?', noiDung: 'Nộp rồi em sẽ thấy đáp án và không sửa được phần này nữa.', co: 'Nộp', khong: 'Làm tiếp' })) return;
     st.p1done = true; knCommit(); window.scrollTo(0, 0); knLuuMay(false); return;
   }
+  if (a === 'dap') { const i = v.lastIndexOf('|'), qk = v.slice(0, i), [bk, n] = qk.split('|'); if ((st.loc[qk] || {}).xong) return; (st.dap = st.dap || {})[qk] = st.dap[qk] === v.slice(i + 1) ? '' : v.slice(i + 1); st.cur[bk] = +n; return knCommit(); }
   if (a === 'plC') { const i = v.indexOf('|'); (st.pl = st.pl || {})[v.slice(0, i)] = v.slice(i + 1); return knCommit(); }
   if (a === 'nop-pl') {
     if (!await hoi({ eyebrow: KN.d.pl.nhan || 'Chọn nhanh', tieuDe: 'Nộp phần này?', noiDung: 'Nộp rồi em sẽ thấy đáp án và không sửa được phần này nữa.', co: 'Nộp', khong: 'Làm tiếp' })) return;
@@ -5531,6 +5569,7 @@ $('knMain').addEventListener('click', async e => {
 });
 $('knSteps').addEventListener('click', e => { const b = e.target.closest('[data-a="step"]'); if (!b) return; KN.st.step = b.dataset.v; KN.vuaNop = false; if (KN.ro) knVe(); else { knCommit(); knLuuMay(false); } window.scrollTo(0, 0); });
 $('knMain').addEventListener('input', e => {
+  if (e.target.dataset.dap && !KN.ro) { (KN.st.dap = KN.st.dap || {})[e.target.dataset.dap] = e.target.value; knLuu(); return; }
   const t = e.target; if (!t.dataset.b2 || KN.ro) return;
   const [n, f] = t.dataset.b2.split('|'), r = KN.st.b2[n] = KN.st.b2[n] || {}; r[f] = t.value; knLuu();
   const D = knDiem(KN.d, KN.st, false), btn = $('knB2Rev');
