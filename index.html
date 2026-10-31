@@ -1052,6 +1052,7 @@ mark.k-seg.xong{background:var(--ok-soft);box-shadow:inset 0 -2px 0 var(--ok)}
 
 .k-pen .ic-tu{background:var(--stv-soft,#E1ECFF);color:var(--stv,#2F6FDB);border-radius:4px;padding:0 4px;font-weight:700}
 .k-pen[data-v=tu].on{border-color:var(--stv,#2F6FDB)}
+.k-pl{display:flex;gap:8px;flex-wrap:wrap}.k-pl .k-op{width:auto;min-width:72px;justify-content:center}
 
 /* ====== SỔ TỪ VỰNG ====== */
 :root{--stv:#2F6FDB;--stv-soft:#E1ECFF}
@@ -5080,10 +5081,13 @@ function knKhop2B(text, g) {
     return String(x[0]).split('/').some(function (s) { return knNormList(s).filter(function (n) { return !KN_STOP[n]; }).join(' ') === a; });
   });
 }
+function knPlDs(de) { return (de.pl && de.pl.ds) || []; }
 function knTongP3(de) { return de.p3.bai.reduce(function (s, b) { return s + b.ds.length; }, 0); }
 /** Điểm + củi của một bài (st: trạng thái bài làm). kiemLai = true: chấm lại phần highlight (máy chủ dùng) */
 function knDiem(de, st, kiemLai) {
   st = st || {};
+  var plDs = knPlDs(de), pl = 0, plc = st.pl || {};
+  if (st.pldone) plDs.forEach(function (q) { if (plc[q.n] && plc[q.n] === q.da) pl++; });
   var marks = st.marks || {}, a2 = st.a2 || {}, b2 = st.b2 || {}, loc = st.loc || {}, hl = st.hl || {};
   var p1 = 0;
   if (st.p1done) de.p1.ds.forEach(function (q) { var r = knChamTuKhoa('q:p1:' + q.n, q, marks); p1 += (r.kw && r.kw.pass ? 1 : 0) + (r.an.pass ? 1 : 0); });
@@ -5102,12 +5106,12 @@ function knDiem(de, st, kiemLai) {
   });
   var b2xong = de.b2.ds.filter(function (x) { var r = b2[x.n] || {}; return String(r.t1 || '').trim() && String(r.t2 || '').trim(); }).length;
   var tong3 = knTongP3(de);
-  var toiDa = de.p1.ds.length * 2 + de.a2.ds.length * 2 + tong3, dat = p1 + a + p3, pct = toiDa ? dat / toiDa : 0;
-  var xong = { p1: !de.p1.ds.length || !!st.p1done, a2: !de.a2.ds.length || !!st.a2done, b2: !de.b2.ds.length || (b2xong === de.b2.ds.length && !!st.b2rev), p3: p3xong === tong3 };
-  var hoanThanh = xong.p1 && xong.a2 && xong.b2 && xong.p3;
+  var toiDa = plDs.length + de.p1.ds.length * 2 + de.a2.ds.length * 2 + tong3, dat = pl + p1 + a + p3, pct = toiDa ? dat / toiDa : 0;
+  var xong = { pl: !plDs.length || !!st.pldone, p1: !de.p1.ds.length || !!st.p1done, a2: !de.a2.ds.length || !!st.a2done, b2: !de.b2.ds.length || (b2xong === de.b2.ds.length && !!st.b2rev), p3: p3xong === tong3 };
+  var hoanThanh = xong.pl && xong.p1 && xong.a2 && xong.b2 && xong.p3;
   var muc = KN_CFG.CUI_DUNG.filter(function (x) { return pct >= x[0] - 1e-9; })[0];
   return {
-    p1: p1, a2: a, p3: p3, p3xong: p3xong, tong3: tong3, b2xong: b2xong, dat: Math.round(dat * 10) / 10, toiDa: toiDa, pct: pct, xong: xong, hoanThanh: hoanThanh,
+    pl: pl, p1: p1, a2: a, p3: p3, p3xong: p3xong, tong3: tong3, b2xong: b2xong, dat: Math.round(dat * 10) / 10, toiDa: toiDa, pct: pct, xong: xong, hoanThanh: hoanThanh,
     cuiHT: hoanThanh ? KN_CFG.CUI_HOAN_THANH : 0, cuiDung: hoanThanh && muc ? muc[1] : 0,
   };
 }
@@ -5131,8 +5135,8 @@ function knDiem(de, st, kiemLai) {
 <script>
 /* ====== BÀI KỸ NĂNG ====== */
 const KN = { d: null, st: null, ro: false, ve: 'scr-list', ma: '', tx: {}, nap: null, luuHen: null, ganNhat: 0 };
-const KN_STEPS = [['gt', 'Bắt đầu', 'Hướng dẫn'], ['p1', 'Pillar 1', 'Gạch từ khóa'], ['a2', 'Pillar 2A', 'Chọn paraphrase'], ['b2', 'Pillar 2B', 'Tự đoán'], ['p3', 'Pillar 3', 'Tìm trong bài đọc'], ['tk', 'Tổng kết', 'Củi & nộp bài']];
-const knMoi = () => ({ v: 1, step: 'gt', pen: 'gach', marks: {}, seg: {}, segN: 1, p1done: false, a2: {}, a2done: false, b2: {}, b2rev: false, bai: 0, mtab: 'cau', cur: {}, loc: {}, hl: {}, t: {}, giay: 0, _t: 0 });
+const KN_STEPS = [['gt', 'Bắt đầu', 'Hướng dẫn'], ['pl', 'Chọn nhanh', 'Phân loại'], ['p1', 'Pillar 1', 'Gạch từ khóa'], ['a2', 'Pillar 2A', 'Chọn paraphrase'], ['b2', 'Pillar 2B', 'Tự đoán'], ['p3', 'Pillar 3', 'Tìm trong bài đọc'], ['tk', 'Tổng kết', 'Củi & nộp bài']];
+const knMoi = () => ({ v: 1, step: 'gt', pen: 'gach', pl: {}, pldone: false, marks: {}, seg: {}, segN: 1, p1done: false, a2: {}, a2done: false, b2: {}, b2rev: false, bai: 0, mtab: 'cau', cur: {}, loc: {}, hl: {}, t: {}, giay: 0, _t: 0 });
 const knKey = () => 'kn_' + S.ma + '_' + KN.ma;
 const knEsc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
 const knFmt = s => { s = Math.max(0, Math.round(s || 0)); return Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0'); };
@@ -5243,22 +5247,22 @@ function knKqDong(r) {
   if (r.an && !r.an.khong) l.push('<span class="' + (r.an.pass ? 'k-g' : 'k-b') + '">Anchor: ' + (r.an.pass ? 'đúng' : r.an.co ? 'chưa đúng' : 'chưa khoanh') + '</span>');
   return l.join('');
 }
-const knStepCo = k => k === 'gt' || k === 'tk' || (k === 'p1' ? KN.d.p1.ds.length : k === 'a2' ? KN.d.a2.ds.length : k === 'b2' ? KN.d.b2.ds.length : KN.d.p3.bai.length);
+const knStepCo = k => k === 'gt' || k === 'tk' || (k === 'pl' ? knPlDs(KN.d).length : k === 'p1' ? KN.d.p1.ds.length : k === 'a2' ? KN.d.a2.ds.length : k === 'b2' ? KN.d.b2.ds.length : KN.d.p3.bai.length);
 
 /* ---------- vẽ màn hình ---------- */
 function knVe() {
   const D = knDiem(KN.d, KN.st, false), st = KN.st;
   $('scr-kn').classList.toggle('k-ro-mode', KN.ro);
   $('knCui').innerHTML = '<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M12 2c1 4 6 6 6 12a6 6 0 1 1-12 0c0-3 2-4 2-7 2 1 3 3 3 5 1-2 1-6 1-10Z" fill="var(--brand)"/></svg>' + (D.cuiHT + D.cuiDung) + ' củi';
-  const ds = KN_STEPS.filter(s => knStepCo(s[0]));
+  const ds = KN_STEPS.filter(s => knStepCo(s[0])).map(s => s[0] === 'pl' ? ['pl', KN.d.pl.nhan || s[1], KN.d.pl.ten || s[2]] : s);
   $('knSteps').innerHTML = ds.map(([k, t, s], i) => { const xong = D.xong[k] || (k === 'tk' && KN.ro); return '<button class="k-st ' + (st.step === k ? 'on' : '') + ' ' + (xong ? 'k-xong' : '') + '" data-a="step" data-v="' + k + '"><span class="dot">' + (xong ? '✓' : i + 1) + '</span><b>' + t + '</b><small>' + s + '</small></button>'; }).join('');
   const bai = $('knMain').querySelector('.k-bai'), keep = bai ? bai.scrollTop : 0;
-  $('knMain').innerHTML = (KN.ro && st.step !== 'tk' ? '<div class="k-ro">' + (KN.thay ? 'Thầy đang xem bài đã nộp của học viên' : 'Em đang xem lại bài đã nộp') + '. Phần chấm hiện ngay trên từng câu.</div>' : '') + ({ gt: knGT, p1: knP1, a2: knA2, b2: knB2, p3: knP3, tk: knTK })[st.step](D);
+  $('knMain').innerHTML = (KN.ro && st.step !== 'tk' ? '<div class="k-ro">' + (KN.thay ? 'Thầy đang xem bài đã nộp của học viên' : 'Em đang xem lại bài đã nộp') + '. Phần chấm hiện ngay trên từng câu.</div>' : '') + ({ gt: knGT, pl: knPL, p1: knP1, a2: knA2, b2: knB2, p3: knP3, tk: knTK })[st.step](D);
   const b2 = $('knMain').querySelector('.k-bai'); if (b2) b2.scrollTop = keep;
 }
 function knGT(D) {
   const d = KN.d;
-  const phan = [['p1', 'Pillar 1', 'Gạch từ khóa, khoanh Anchor', d.p1.ds.length + ' câu'], ['a2', 'Pillar 2A', 'Chọn cách paraphrase đúng', d.a2.ds.length + ' câu'], ['b2', 'Pillar 2B', 'Tự đoán paraphrase', d.b2.ds.length + ' từ'], ['p3', 'Pillar 3', 'Tìm từ khóa trong bài đọc', d.p3.bai.length + ' bài đọc · ' + knTongP3(d) + ' câu']].filter(x => knStepCo(x[0]));
+  const phan = [['pl', (d.pl && d.pl.nhan) || 'Chọn nhanh', (d.pl && d.pl.ten) || 'Chọn đáp án đúng', knPlDs(d).length + ' câu'], ['p1', 'Pillar 1', 'Gạch từ khóa, khoanh Anchor', d.p1.ds.length + ' câu'], ['a2', 'Pillar 2A', 'Chọn cách paraphrase đúng', d.a2.ds.length + ' câu'], ['b2', 'Pillar 2B', 'Tự đoán paraphrase', d.b2.ds.length + ' từ'], ['p3', 'Pillar 3', 'Tìm từ khóa trong bài đọc', d.p3.bai.length + ' bài đọc · ' + knTongP3(d) + ' câu']].filter(x => knStepCo(x[0]));
   return '<div class="k-ph"><div><div class="eyebrow">Bài về nhà · ' + knEsc(d.khoa || '') + '</div><h1>' + knEsc(d.ten || KN.ma) + '</h1></div></div>' +
     (d.gioiThieu || []).map(t => '<p class="k-lead">' + knEsc(t) + '</p>').join('') +
     '<div class="k-card k-tbw"><table class="k-tb"><tr><th>Phần</th><th>Em làm gì</th><th style="text-align:right">Số câu</th><th></th></tr>' +
@@ -5266,7 +5270,7 @@ function knGT(D) {
     '<div class="k-note">Bài làm tự lưu trên máy và lên mạng, em làm dở thì lần sau vào làm tiếp. Củi: làm đủ 4 phần được <b>+' + KN_CFG.CUI_HOAN_THANH + '</b>, làm đúng nhiều được thưởng thêm ' + KN_CFG.CUI_DUNG.slice().reverse().map(x => '<b>+' + x[1] + '</b> (≥' + Math.round(x[0] * 100) + '%)').join(', ') + '.</div>' +
     '<div class="k-row"><button class="k-btn pri" data-a="step" data-v="' + (phan.find(x => !D.xong[x[0]]) || phan[0])[0] + '">' + (st0() ? 'Làm tiếp →' : 'Bắt đầu →') + '</button></div>';
 }
-const st0 = () => KN.st.p1done || Object.keys(KN.st.marks).length || Object.keys(KN.st.a2).length;
+const st0 = () => KN.st.pldone || Object.keys(KN.st.pl || {}).length || KN.st.p1done || Object.keys(KN.st.marks).length || Object.keys(KN.st.a2).length;
 function knP1() {
   const done = KN.st.p1done, d = KN.d.p1;
   return '<div class="k-ph"><div><div class="eyebrow">Pillar 1 · ' + d.ds.length + ' câu</div><h1>Gạch từ khóa, khoanh Anchor word</h1></div></div>' +
@@ -5281,9 +5285,25 @@ function knP1() {
       : KN.ro ? '' : '<div class="k-row"><button class="k-btn pri" data-a="nop-p1">Nộp Pillar 1</button><span class="k-legend">Nộp rồi em sẽ thấy đáp án và không sửa được nữa.</span></div>');
 }
 function knTiep(sau) {
-  const ds = KN_STEPS.map(s => s[0]).filter(knStepCo), i = ds.indexOf(sau);
-  const k = i > -1 ? sau : 'tk', ten = (KN_STEPS.find(s => s[0] === k) || [])[1];
+  const thu = KN_STEPS.map(s => s[0]), tu = thu.indexOf(sau);
+  const k = thu.slice(tu > -1 ? tu : 0).find(knStepCo) || 'tk';
+  const ten = k === 'pl' ? (KN.d.pl.nhan || 'Chọn nhanh') : (KN_STEPS.find(s => s[0] === k) || [])[1];
   return '<div class="k-row"><button class="k-btn pri" data-a="step" data-v="' + k + '">Sang ' + ten + ' →</button></div>';
+}
+function knPL() {
+  const d = KN.d.pl, st = KN.st, c = st.pl = st.pl || {}, done = st.pldone, du = d.ds.every(q => c[q.n]);
+  return '<div class="k-ph"><div><div class="eyebrow">' + knEsc(d.nhan) + ' · ' + d.ds.length + ' câu</div><h1>' + knEsc(d.ten || 'Chọn nhanh') + '</h1></div></div>' +
+    d.hd.map(t => '<p class="k-lead">' + knEsc(t) + '</p>').join('') +
+    '<div class="k-qlist">' + d.ds.map(q => {
+      const r = c[q.n];
+      return '<div class="k-q"><div class="k-qh"><span class="k-qn">' + q.n + '</span><div class="k-qt">' + knEsc(q.de) + '</div></div><div class="k-sub"><div class="k-pl">' +
+        q.pa.map(x => { let k = ''; if (done) { if (x === q.da) k = 'ok'; else if (r === x) k = 'bad'; } else if (r === x) k = 'sel';
+          return '<button class="k-op ' + k + '" data-a="plC" data-v="' + q.n + '|' + knEsc(x) + '" ' + (done || KN.ro ? 'disabled' : '') + '><b>' + knEsc(x) + '</b></button>'; }).join('') + '</div>' +
+        (done && q.why ? '<div class="k-kq"><span class="' + (r === q.da ? 'k-g' : 'k-b') + '">' + (r === q.da ? 'Đúng' : 'Đáp án: ' + knEsc(q.da)) + '</span> <span class="k-m">' + knEsc(q.why) + '</span></div>' : done && r !== q.da ? '<div class="k-kq"><span class="k-b">Đáp án: ' + knEsc(q.da) + '</span></div>' : '') + '</div></div>';
+    }).join('') + '</div>' +
+    (d.meo ? '<div class="k-note"><b>Mẹo:</b> ' + knEsc(d.meo) + '</div>' : '') +
+    (done ? (d.note ? '<div class="k-note">' + knEsc(d.note) + '</div>' : '') + knTiep('p1')
+      : KN.ro ? '' : '<div class="k-row"><button class="k-btn pri" data-a="nop-pl" ' + (du ? '' : 'disabled') + '>Nộp phần này</button><span class="k-legend">' + (du ? 'Nộp rồi em sẽ thấy đáp án và không sửa được nữa.' : 'Chọn đủ ' + d.ds.length + ' câu để nộp.') + '</span></div>');
 }
 function knA2() {
   const done = KN.st.a2done, d = KN.d.a2, du = d.ds.every(q => KN.st.a2[q.n] && KN.st.a2[q.n].L && KN.st.a2[q.n].c);
@@ -5388,7 +5408,7 @@ function knP3() {
 }
 function knTK(D) {
   const pc = Math.round(D.pct * 100), d = KN.d;
-  const rows = [['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3]].filter(x => x[4]);
+  const rows = [[((d.pl && d.pl.nhan) || 'Chọn nhanh') + ' · chọn đáp án', D.pl, knPlDs(d).length, D.xong.pl, knPlDs(d).length], ['Pillar 1 · từ khóa + Anchor', D.p1, d.p1.ds.length * 2, D.xong.p1, d.p1.ds.length], ['Pillar 2A · đáp án + cách', D.a2, d.a2.ds.length * 2, D.xong.a2, d.a2.ds.length], ['Pillar 3 · tìm đúng vị trí', D.p3, D.tong3, D.xong.p3, D.tong3]].filter(x => x[4]);
   const daNop = KN.ro;
   return '<div class="k-ph"><div><div class="eyebrow">Tổng kết</div><h1>' + (daNop ? 'Kết quả bài đã nộp' : 'Củi của bài về nhà') + '</h1></div></div>' +
     (KN.vuaNop ? '<div class="lua-gain" id="knCuiMoi" hidden></div>' : '') +
@@ -5486,6 +5506,11 @@ $('knMain').addEventListener('click', async e => {
   if (a === 'nop-p1') {
     if (!await hoi({ eyebrow: 'Pillar 1', tieuDe: 'Nộp Pillar 1?', noiDung: 'Nộp rồi em sẽ thấy đáp án và không sửa được phần này nữa.', co: 'Nộp', khong: 'Làm tiếp' })) return;
     st.p1done = true; knCommit(); window.scrollTo(0, 0); knLuuMay(false); return;
+  }
+  if (a === 'plC') { const i = v.indexOf('|'); (st.pl = st.pl || {})[v.slice(0, i)] = v.slice(i + 1); return knCommit(); }
+  if (a === 'nop-pl') {
+    if (!await hoi({ eyebrow: KN.d.pl.nhan || 'Chọn nhanh', tieuDe: 'Nộp phần này?', noiDung: 'Nộp rồi em sẽ thấy đáp án và không sửa được phần này nữa.', co: 'Nộp', khong: 'Làm tiếp' })) return;
+    st.pldone = true; knCommit(); window.scrollTo(0, 0); knLuuMay(false); return;
   }
   if (a === 'a2L' || a === 'a2c') { const [n, x] = v.split('|'), r = st.a2[n] = st.a2[n] || {}; if (a === 'a2L') r.L = x; else r.c = +x; return knCommit(); }
   if (a === 'nop-a2') {
